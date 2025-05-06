@@ -1,0 +1,25 @@
+export default {
+  scheduleTitle: 'Schedule',
+  medicineTitle: 'Medicine',
+  profileTitle: 'Profile',
+  greetings: {
+    morning: 'Good morning',
+    afternoon: 'Good afternoon',
+    evening: 'Good evening',
+    night: 'Good night',
+    default: 'Hello'
+  },
+  namePlaceholder: 'Your name',
+  medicine: {
+    emptyState: 'Medicine cabinet is empty',
+    addTitle: 'Add medicine',
+    nameLabel: 'Name',
+    quantity: 'Quantity',
+    expiryDate: 'Expiry date',
+    setReminder: 'Set reminder'
+  },
+  actions: {
+    save: 'Save',
+    cancel: 'Cancel'
+  }
+};
