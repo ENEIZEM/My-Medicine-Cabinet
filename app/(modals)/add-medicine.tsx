@@ -15,6 +15,7 @@ interface AddMedicineModalProps {
   onDismiss: () => void;
 }
 
+//
 // Создаем кастомный TextInput с правильными пропсами
 const TextInput = ({ label, ...props }: { label: string } & React.ComponentProps<typeof PaperTextInput>) => (
   <View style={{ marginBottom: 16 }}>
