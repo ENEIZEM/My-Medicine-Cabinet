@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 
 export default function WelcomeScreen() {
   const { colors } = useTheme();
-  const { t, userName } = useLanguage();
+  const { t, userName } = useLanguage(); // Теперь это должно работать
   const [greeting, setGreeting] = useState(t.greetings.default);
 
   useEffect(() => {
@@ -23,10 +23,10 @@ export default function WelcomeScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <Icon 
-        source="heart" 
-        size={80} 
-        color={colors.primary} 
+      <Icon
+        source="heart"
+        size={80}
+        color={colors.primary}
       />
       <Text style={[styles.greeting, { color: colors.onBackground }]}>
         {greeting}

@@ -14,24 +14,12 @@ export default function RootLayout() {
     return () => clearTimeout(timer);
   }, []);
 
-  if (isLoading) {
-    return (
-      <ThemeProvider>
-        <LanguageProvider>
-          <PaperProvider>
-            <WelcomeScreen />
-          </PaperProvider>
-        </LanguageProvider>
-      </ThemeProvider>
-    );
-  }
-
   return (
     <ThemeProvider>
       <LanguageProvider>
         <MedicineProvider>
           <PaperProvider>
-            <Slot />
+            {isLoading ? <WelcomeScreen /> : <Slot />}
           </PaperProvider>
         </MedicineProvider>
       </LanguageProvider>
