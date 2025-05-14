@@ -21,5 +21,6 @@ export default {
   actions: {
     save: 'Сохранить',
     cancel: 'Отмена'
-  }
+  },
+  language: 'Язык'
 };

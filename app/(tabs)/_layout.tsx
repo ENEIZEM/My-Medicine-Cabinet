@@ -3,11 +3,13 @@ import { useTheme, Text, Icon } from 'react-native-paper';
 import ScheduleScreen from './schedule';
 import MedicineScreen from './medicine';
 import ProfileScreen from './profile';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Tab = createBottomTabNavigator();
 
 export default function TabsLayout() {
   const theme = useTheme();
+  const { t } = useLanguage();
 
   return (
     <Tab.Navigator
@@ -22,9 +24,9 @@ export default function TabsLayout() {
           marginBottom: -4
         },
         tabBarLabel: ({ color, focused, children }) => (
-          <Text 
-            style={{ 
-              color, 
+          <Text
+            style={{
+              color,
               fontSize: 12,
               marginBottom: 4,
               fontWeight: focused ? '600' : '400'
@@ -42,7 +44,7 @@ export default function TabsLayout() {
           tabBarIcon: ({ color }) => (
             <Icon source="calendar" size={24} color={color} />
           ),
-          tabBarLabel: 'Расписание'
+          tabBarLabel: t.scheduleTitle
         }}
       />
       <Tab.Screen
@@ -52,7 +54,7 @@ export default function TabsLayout() {
           tabBarIcon: ({ color }) => (
             <Icon source="pill" size={24} color={color} />
           ),
-          tabBarLabel: 'Аптечка'
+          tabBarLabel: t.scheduleTitle
         }}
       />
       <Tab.Screen
@@ -62,7 +64,7 @@ export default function TabsLayout() {
           tabBarIcon: ({ color }) => (
             <Icon source="account" size={24} color={color} />
           ),
-          tabBarLabel: 'Профиль'
+          tabBarLabel: t.scheduleTitle
         }}
       />
     </Tab.Navigator>
