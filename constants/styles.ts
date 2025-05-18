@@ -28,4 +28,13 @@ export const commonStyles = StyleSheet.create({
     right: 0,
     bottom: 0,
   },
+  row: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  paddingVertical: 15,
+  paddingHorizontal: 5,
+  borderBottomWidth: 1,
+  borderBottomColor: '#f0f0f0',
+  },
 });

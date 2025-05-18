@@ -14,6 +14,7 @@ type Language = keyof typeof translations;
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => Promise<void>;
+  toggleLanguage: () => void;
   t: typeof translations[Language];
   userName: string;
   setUserName: (name: string) => Promise<void>;
@@ -25,7 +26,6 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   const [language, setLanguageState] = useState<Language>('en');
   const [userName, setUserNameState] = useState('');
 
-  // Загрузка сохраненных данных
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -59,6 +59,11 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const toggleLanguage = () => {
+    const newLang: Language = language === 'en' ? 'ru' : 'en';
+    setLanguage(newLang);
+  };
+
   const setUserName = async (name: string) => {
     try {
       await AsyncStorage.setItem('userName', name);
@@ -73,6 +78,7 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
       value={{
         language,
         setLanguage,
+        toggleLanguage,
         t: translations[language],
         userName,
         setUserName

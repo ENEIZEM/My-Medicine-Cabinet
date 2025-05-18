@@ -17,7 +17,8 @@ export default {
     quantity: 'Количество',
     selectUnit: 'Выберите единицу',
     expiryDate: 'Срок годности',
-    setReminder: 'Напоминание'
+    setReminder: 'Напоминание',
+    editTitle: 'Редактировать лекарство',
   },
   units: {
     tablet: 'таблетка',
@@ -28,7 +29,18 @@ export default {
   },
   actions: {
     save: 'Сохранить',
-    cancel: 'Отмена'
+    cancel: 'Отмена',
+    fillAllFields: 'Пожалуйста, заполните все поля',
+    delete: 'Удалить',
+    confirm: 'Подтвердите',
+    deleteConfirm: 'Вы действительно хотите удалить лекарство?',
   },
-  language: 'Язык'
+  language: 'Язык',
+  timeFormat: 'Формат времени',
+  theme: 'Тема',
+  themes: {
+    system: 'Системная',
+    light: 'Светлая',
+    dark: 'Тёмная',
+  },
 };

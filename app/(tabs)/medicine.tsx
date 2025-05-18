@@ -1,72 +1,113 @@
-import { FlatList, View } from 'react-native';
-import { useTheme, Card, Text, FAB } from 'react-native-paper';
-import { useMedicine } from '@/contexts/MedicineContext';
+import React, { useState } from 'react';
+import { View, FlatList } from 'react-native';
+import {
+  Text,
+  IconButton,
+  Card,
+  useTheme,
+  Dialog,
+  Portal,
+  Button,
+} from 'react-native-paper';
+import { useMedicine, Medicine } from '@/contexts/MedicineContext';
+import AddFab from '@/components/ui/AddFab';
+import AddMedicineModal from '@/app/(modals)/add-medicine';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { StyleSheet } from 'react-native';
-import { Link } from 'expo-router';
 import { commonStyles } from '@/constants/styles';
 
 export default function MedicineScreen() {
-  const { colors } = useTheme();
+  const { medicines, deleteMedicine } = useMedicine();
   const { t } = useLanguage();
-  const { medicines } = useMedicine();
+  const theme = useTheme();
+  const { colors } = theme;
+
+  const [editingMedicine, setEditingMedicine] = useState<Medicine | null>(null);
+  const [selectedForDelete, setSelectedForDelete] = useState<Medicine | null>(null);
+
+  const handleConfirmDelete = () => {
+    if (selectedForDelete) {
+      deleteMedicine(selectedForDelete.id);
+      setSelectedForDelete(null);
+    }
+  };
 
   return (
-    <View style={{ flex: 1, padding: 16, backgroundColor: colors.background }}>
+    <View style={[commonStyles.container, { backgroundColor: colors.background }]}>
       {medicines.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <Text style={{ color: colors.onSurfaceVariant, marginBottom: 20 }}>
-            {t.medicine.emptyState}
-          </Text>
-          <Link href="/(modals)/add-medicine" asChild>
-            <FAB
-              icon="plus"
-              label={t.medicine.addTitle}
-              style={styles.fab}
-            />
-          </Link>
-        </View>
+        <Text style={{ color: colors.onBackground }}>{t.medicine.emptyState}</Text>
       ) : (
-        <>
-          <FlatList
-            data={medicines}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <Card style={{ marginBottom: 12, backgroundColor: colors.surfaceVariant }}>
-                <Card.Content>
-                  <Text style={{ color: colors.onSurface }}>
+        <FlatList
+          data={medicines}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <Card
+              style={{
+                backgroundColor: colors.surface,
+                marginBottom: 12,
+                padding: 12,
+              }}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                {/* Контент лекарства слева */}
+                <View>
+                  <Text style={{ color: colors.onSurface }} variant="titleMedium">
                     {item.name}
                   </Text>
-                  <Text style={{ color: colors.onSurfaceVariant }}>
-                    {t.medicine.quantity}: {item.quantity}
+                  <Text style={{ color: colors.onSurface }}>
+                    {item.quantity} {t.units[item.unit as keyof typeof t.units]}
                   </Text>
-                </Card.Content>
-              </Card>
-            )}
-          />
-          <Link href="/(modals)/add-medicine" asChild>
-            <FAB
-              icon="plus"
-              label={t.medicine.addTitle}
-              style={styles.fab}
-            />
-          </Link>
-        </>
+                  <Text style={{ color: colors.onSurface }}>{item.expiryDate}</Text>
+                </View>
+
+                {/* Кнопки справа */}
+                <View style={{ flexDirection: 'row' }}>
+                  <IconButton
+                    icon="pencil"
+                    size={20}
+                    onPress={() => setEditingMedicine(item)}
+                    iconColor={colors.primary}
+                  />
+                  <IconButton
+                    icon="delete"
+                    size={20}
+                    onPress={() => setSelectedForDelete(item)}
+                    iconColor={colors.error}
+                  />
+                </View>
+              </View>
+            </Card>
+          )}
+        />
       )}
+
+      <AddFab to="/(modals)/add-medicine" label={t.medicine.addTitle} />
+
+      {/* Модалка редактирования */}
+      {editingMedicine && (
+        <AddMedicineModal
+          visible={!!editingMedicine}
+          medicineToEdit={editingMedicine}
+          onDismiss={() => {
+            setEditingMedicine(null); // ✅ гарантированно сбрасываем
+          }}
+        />
+      )}
+
+      {/* Кастомный диалог удаления */}
+      <Portal>
+        <Dialog visible={!!selectedForDelete} onDismiss={() => setSelectedForDelete(null)}>
+          <Dialog.Title>{t.actions.confirm}</Dialog.Title>
+          <Dialog.Content>
+            <Text style={{ color: colors.onSurface }}>{t.actions.deleteConfirm}</Text>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setSelectedForDelete(null)}>{t.actions.cancel}</Button>
+            <Button onPress={handleConfirmDelete} textColor={colors.error}>
+              {t.actions.delete}
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  fab: {
-    position: 'absolute',
-    margin: 16,
-    right: 0,
-    bottom: 0,
-  },
-});

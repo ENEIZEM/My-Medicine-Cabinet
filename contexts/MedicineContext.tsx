@@ -1,17 +1,18 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-type Medicine = {
+export type Medicine = {
   id: string;
   name: string;
-  quantity: number; // Количество как число
-  unit: string;     // Единица измерения как строка
+  quantity: number;
+  unit: string;
   expiryDate: string;
 };
 
 type MedicineContextType = {
   medicines: Medicine[];
   addMedicine: (medicine: Omit<Medicine, 'id'>) => Promise<void>;
+  updateMedicine: (medicine: Medicine) => Promise<void>;
   deleteMedicine: (id: string) => Promise<void>;
 };
 
@@ -43,9 +44,21 @@ export const MedicineProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const updateMedicine = async (updatedMedicine: Medicine) => {
+    try {
+      const updatedList = medicines.map((m) =>
+        m.id === updatedMedicine.id ? updatedMedicine : m
+      );
+      setMedicines(updatedList);
+      await AsyncStorage.setItem('medicines', JSON.stringify(updatedList));
+    } catch (error) {
+      console.error('Failed to update medicine', error);
+    }
+  };
+
   const deleteMedicine = async (id: string) => {
     try {
-      const updated = medicines.filter(m => m.id !== id);
+      const updated = medicines.filter((m) => m.id !== id);
       setMedicines(updated);
       await AsyncStorage.setItem('medicines', JSON.stringify(updated));
     } catch (error) {
@@ -54,7 +67,7 @@ export const MedicineProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <MedicineContext.Provider value={{ medicines, addMedicine, deleteMedicine }}>
+    <MedicineContext.Provider value={{ medicines, addMedicine, updateMedicine, deleteMedicine }}>
       {children}
     </MedicineContext.Provider>
   );

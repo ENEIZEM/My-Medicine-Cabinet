@@ -41,30 +41,26 @@ export default function TabsLayout() {
         name="schedule"
         component={ScheduleScreen}
         options={{
-          tabBarIcon: ({ color }) => (
-            <Icon source="calendar" size={24} color={color} />
-          ),
-          tabBarLabel: t.scheduleTitle
+          tabBarIcon: ({ color }) => <Icon source="calendar" size={24} color={color} />,
+          tabBarLabel: t.scheduleTitle,
         }}
       />
+
       <Tab.Screen
         name="medicine"
         component={MedicineScreen}
         options={{
-          tabBarIcon: ({ color }) => (
-            <Icon source="pill" size={24} color={color} />
-          ),
-          tabBarLabel: t.scheduleTitle
+          tabBarIcon: ({ color }) => <Icon source="pill" size={24} color={color} />,
+          tabBarLabel: t.medicineTitle,
         }}
       />
+
       <Tab.Screen
         name="profile"
         component={ProfileScreen}
         options={{
-          tabBarIcon: ({ color }) => (
-            <Icon source="account" size={24} color={color} />
-          ),
-          tabBarLabel: t.scheduleTitle
+          tabBarIcon: ({ color }) => <Icon source="account" size={24} color={color} />,
+          tabBarLabel: t.profileTitle,
         }}
       />
     </Tab.Navigator>

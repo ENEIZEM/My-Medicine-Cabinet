@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Animated,
   ScrollView,
@@ -15,42 +15,55 @@ import {
   Divider,
 } from 'react-native-paper';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useMedicine } from '@/contexts/MedicineContext';
+import { useMedicine, Medicine } from '@/contexts/MedicineContext';
+import { useRouter } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 interface AddMedicineModalProps {
   visible: boolean;
-  onDismiss: () => void;
+  medicineToEdit?: Medicine;
+  onDismiss?: () => void;
 }
 
-const AddMedicineModal: React.FC<AddMedicineModalProps> = ({ visible, onDismiss }) => {
+const AddMedicineModal: React.FC<AddMedicineModalProps> = ({
+  visible,
+  medicineToEdit,
+  onDismiss,
+}) => {
   const theme = useTheme();
   const { t } = useLanguage();
-  const { addMedicine } = useMedicine();
+  const { addMedicine, updateMedicine } = useMedicine();
+  const router = useRouter();
+
+  const isEditMode = !!medicineToEdit;
 
   const [form, setForm] = useState({
-    name: '',
-    unit: '',
-    quantity: 0,
-    expiryDate: new Date(),
+    name: medicineToEdit?.name ?? '',
+    unit: medicineToEdit?.unit ?? '',
+    quantity: medicineToEdit?.quantity ?? 0,
+    expiryDate: medicineToEdit
+      ? new Date(medicineToEdit.expiryDate)
+      : new Date(),
   });
-
   const [showDatePicker, setShowDatePicker] = useState(false);
 
-  const units = [
-    { label: t.units.tablet, value: 'tablet' },
-    { label: t.units.capsule, value: 'capsule' },
-    { label: t.units.injection, value: 'injection' },
-    { label: t.units.bottle, value: 'bottle' },
-    { label: t.units.pack, value: 'pack' },
-  ];
+  const units = useMemo(
+    () => [
+      { label: t.units.tablet, value: 'tablet' },
+      { label: t.units.capsule, value: 'capsule' },
+      { label: t.units.injection, value: 'injection' },
+      { label: t.units.bottle, value: 'bottle' },
+      { label: t.units.pack, value: 'pack' },
+    ],
+    [t]
+  );
 
   const [scaleValues] = useState(() =>
     units.map(() => new Animated.Value(1))
   );
 
-  const handleUnitSelect = (value: string, index: number) => {
-    setForm({ ...form, unit: value });
+  const handleUnitSelect = (label: string, index: number) => {
+    setForm({ ...form, unit: units[index].value }); // сохраняем ключ
     Animated.sequence([
       Animated.timing(scaleValues[index], {
         toValue: 0.95,
@@ -65,37 +78,40 @@ const AddMedicineModal: React.FC<AddMedicineModalProps> = ({ visible, onDismiss 
     ]).start();
   };
 
-  const resetForm = () => {
-    setForm({
-      name: '',
-      unit: '',
-      quantity: 0,
-      expiryDate: new Date(),
-    });
-    setShowDatePicker(false);
-  };
-
-  const handleCancel = () => {
-    resetForm();
-    onDismiss();
-  };
-
   const handleSubmit = () => {
-    addMedicine({
+    if (!form.name || !form.unit || !form.quantity || !form.expiryDate) return;
+
+    const formatted = {
       name: form.name,
-      quantity: form.quantity,
       unit: form.unit,
+      quantity: form.quantity,
       expiryDate: form.expiryDate.toISOString().split('T')[0],
-    });
-    resetForm();
-    onDismiss();
+    };
+
+    if (isEditMode && medicineToEdit) {
+      updateMedicine({ ...formatted, id: medicineToEdit.id });
+      onDismiss?.(); // ✅ при редактировании — закрыть модалку
+    } else {
+      addMedicine(formatted);
+      router.replace('/medicine'); // ✅ при добавлении — перейти на вкладку
+    }
   };
 
   return (
-    <Modal visible={visible} animationType="slide" onRequestClose={handleCancel}>
-      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-        <PaperText style={[styles.title, { color: theme.colors.onBackground }]}>
-          {t.medicine.addTitle}
+    <Modal
+      visible={visible}
+      animationType="slide"
+      onRequestClose={() => {
+        isEditMode ? onDismiss?.() : router.replace('/medicine');
+      }}
+    >
+      <View
+        style={[styles.container, { backgroundColor: theme.colors.background }]}
+      >
+        <PaperText
+          style={[styles.title, { color: theme.colors.onBackground }]}
+        >
+          {isEditMode ? t.medicine.addTitle : t.medicine.addTitle}
         </PaperText>
 
         <PaperTextInput
@@ -122,7 +138,7 @@ const AddMedicineModal: React.FC<AddMedicineModalProps> = ({ visible, onDismiss 
                 style={{ transform: [{ scale: scaleValues[index] }] }}
               >
                 <TouchableOpacity
-                  onPress={() => handleUnitSelect(unit.value, index)}
+                  onPress={() => handleUnitSelect(unit.label, index)}
                   style={[
                     styles.unitButton,
                     {
@@ -184,10 +200,18 @@ const AddMedicineModal: React.FC<AddMedicineModalProps> = ({ visible, onDismiss 
           />
         )}
 
-        <Divider style={[styles.divider, { backgroundColor: theme.colors.outline }]} />
+        <Divider
+          style={[styles.divider, { backgroundColor: theme.colors.outline }]}
+        />
 
         <View style={styles.buttonsContainer}>
-          <Button mode="outlined" onPress={handleCancel} style={styles.button}>
+          <Button
+            mode="outlined"
+            onPress={() =>
+              isEditMode ? onDismiss?.() : router.replace('/medicine')
+            }
+            style={styles.button}
+          >
             {t.actions.cancel}
           </Button>
           <Button

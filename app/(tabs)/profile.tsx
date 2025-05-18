@@ -1,19 +1,22 @@
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import { useTheme, Text, TextInput } from 'react-native-paper';
+import { View, TouchableOpacity } from 'react-native';
+import { Text, TextInput, useTheme } from 'react-native-paper';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useSettings } from '@/contexts/SettingsContext';
 import { useState } from 'react';
-import type { FC } from 'react';
 import { commonStyles } from '@/constants/styles';
 
-const ProfileScreen: FC = () => {
+export default function ProfileScreen() {
   const { colors } = useTheme();
-  const { 
-    t, 
-    language, 
-    setLanguage, 
-    userName, 
-    setUserName 
-  } = useLanguage();
+  const { t, language, setLanguage } = useLanguage();
+  const {
+    userName,
+    setUserName,
+    is12HourFormat,
+    toggleTimeFormat,
+    themeMode,
+    setThemeMode,
+  } = useSettings();
+
   const [name, setName] = useState(userName);
 
   const handleSaveName = () => {
@@ -24,28 +27,41 @@ const ProfileScreen: FC = () => {
     setLanguage(language === 'ru' ? 'en' : 'ru');
   };
 
+  const cycleTheme = () => {
+    const nextMode = themeMode === 'system' ? 'light' : themeMode === 'light' ? 'dark' : 'system';
+    setThemeMode(nextMode);
+  };
+
+  const getThemeLabel = () => {
+    switch (themeMode) {
+      case 'light':
+        return t.themes.light;
+      case 'dark':
+        return t.themes.dark;
+      default:
+        return t.themes.system;
+    }
+  };
+
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <Text style={[styles.title, { color: colors.onBackground }]}>
+    <View style={[commonStyles.container, { backgroundColor: colors.background }]}>
+      <Text style={[commonStyles.title, { color: colors.onBackground }]}>
         {t.profileTitle}
       </Text>
 
       <TextInput
         style={[
-          styles.input,
-          { 
-            color: colors.onBackground,
-            borderBottomColor: colors.primary,
-          }
+          commonStyles.input,
+          { color: colors.onBackground, borderBottomColor: colors.primary },
         ]}
         placeholder={t.namePlaceholder}
         placeholderTextColor={colors.onSurfaceVariant}
         value={name}
-        onChangeText={(text: string) => setName(text)}
+        onChangeText={setName}
         onSubmitEditing={handleSaveName}
       />
 
-      <View style={styles.languageRow}>
+      <View style={commonStyles.row}>
         <Text style={{ color: colors.onSurface }}>{t.language}</Text>
         <TouchableOpacity onPress={toggleLanguage}>
           <Text style={{ color: colors.primary, fontWeight: '500' }}>
@@ -53,34 +69,24 @@ const ProfileScreen: FC = () => {
           </Text>
         </TouchableOpacity>
       </View>
+
+      <View style={commonStyles.row}>
+        <Text style={{ color: colors.onSurface }}>{t.timeFormat}</Text>
+        <TouchableOpacity onPress={toggleTimeFormat}>
+          <Text style={{ color: colors.primary, fontWeight: '500' }}>
+            {is12HourFormat ? '12h' : '24h'}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={commonStyles.row}>
+        <Text style={{ color: colors.onSurface }}>{t.theme}</Text>
+        <TouchableOpacity onPress={cycleTheme}>
+          <Text style={{ color: colors.primary, fontWeight: '500' }}>
+            {getThemeLabel()}
+          </Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-  },
-  title: {
-    fontSize: 24,
-    marginBottom: 30,
-  },
-  input: {
-    fontSize: 18,
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    marginBottom: 30,
-  },
-  languageRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 15,
-    paddingHorizontal: 5,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-});
-
-export default ProfileScreen;
+}

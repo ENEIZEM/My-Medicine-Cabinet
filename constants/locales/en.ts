@@ -17,7 +17,8 @@ export default {
     selectUnit: 'Select unit',
     quantity: 'Quantity',
     expiryDate: 'Expiry date',
-    setReminder: 'Set reminder'
+    setReminder: 'Set reminder',
+    editTitle: 'Edit medicine',
   },
   units: {
     tablet: 'tablet',
@@ -28,7 +29,18 @@ export default {
   },
   actions: {
     save: 'Save',
-    cancel: 'Cancel'
+    cancel: 'Cancel',
+    fillAllFields: 'Please fill all fields',
+      delete: 'Delete',
+  confirm: 'Confirm',
+  deleteConfirm: 'Are you sure you want to delete this medicine?',
   },
   language: 'Language',
+  timeFormat: 'Time format',
+  theme: 'Theme',
+  themes: {
+    system: 'System default',
+    light: 'Light',
+    dark: 'Dark',
+  },
 };
