@@ -15,8 +15,16 @@ export default {
     addTitle: 'Добавить лекарство',
     nameLabel: 'Название',
     quantity: 'Количество',
+    selectUnit: 'Выберите единицу',
     expiryDate: 'Срок годности',
     setReminder: 'Напоминание'
+  },
+  units: {
+    tablet: 'таблетка',
+    capsule: 'капсула',
+    injection: 'укол',
+    bottle: 'флакон',
+    pack: 'упаковка',
   },
   actions: {
     save: 'Сохранить',

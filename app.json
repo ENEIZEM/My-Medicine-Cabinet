@@ -15,7 +15,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.anonymous.mymedicinecabinet"
     },
     "web": {
       "bundler": "metro",
@@ -36,7 +37,14 @@
       "expo-sqlite",
       "expo-localization",
       "expo-font",
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "@react-native-community/datetimepicker",
+        {
+          "mode": "spinner",
+          "themeVariant": "automatic"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

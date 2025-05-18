@@ -4,6 +4,7 @@ import { useMedicine } from '@/contexts/MedicineContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { StyleSheet } from 'react-native';
 import { Link } from 'expo-router';
+import { commonStyles } from '@/constants/styles';
 
 export default function MedicineScreen() {
   const { colors } = useTheme();

@@ -4,7 +4,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 type Medicine = {
   id: string;
   name: string;
-  quantity: number;
+  quantity: number; // Количество как число
+  unit: string;     // Единица измерения как строка
   expiryDate: string;
 };
 

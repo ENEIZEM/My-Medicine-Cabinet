@@ -1,8 +1,9 @@
-import { View, Text, TextInput, StyleSheet } from 'react-native';
-import { useTheme, Switch } from 'react-native-paper'; // Добавляем Switch
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { useTheme, Text, TextInput } from 'react-native-paper';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useState } from 'react';
-import type { FC } from 'react'; // Для явной типизации
+import type { FC } from 'react';
+import { commonStyles } from '@/constants/styles';
 
 const ProfileScreen: FC = () => {
   const { colors } = useTheme();
@@ -19,8 +20,8 @@ const ProfileScreen: FC = () => {
     setUserName(name);
   };
 
-  const handleLanguageChange = (val: boolean) => { // Явная типизация параметра
-    setLanguage(val ? 'en' : 'ru');
+  const toggleLanguage = () => {
+    setLanguage(language === 'ru' ? 'en' : 'ru');
   };
 
   return (
@@ -40,19 +41,17 @@ const ProfileScreen: FC = () => {
         placeholder={t.namePlaceholder}
         placeholderTextColor={colors.onSurfaceVariant}
         value={name}
-        onChangeText={(text: string) => setName(text)} // Явная типизация
+        onChangeText={(text: string) => setName(text)}
         onSubmitEditing={handleSaveName}
       />
 
-      <View style={styles.languageContainer}>
-        <Text style={{ color: colors.onSurface }}>
-          {language === 'ru' ? 'Русский' : 'English'}
-        </Text>
-        <Switch
-          value={language === 'en'}
-          onValueChange={handleLanguageChange} // Используем типизированную функцию
-          color={colors.primary}
-        />
+      <View style={styles.languageRow}>
+        <Text style={{ color: colors.onSurface }}>{t.language}</Text>
+        <TouchableOpacity onPress={toggleLanguage}>
+          <Text style={{ color: colors.primary, fontWeight: '500' }}>
+            {language === 'ru' ? 'Русский' : 'English'}
+          </Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -73,11 +72,14 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     marginBottom: 30,
   },
-  languageContainer: {
+  languageRow: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 15,
+    alignItems: 'center',
+    paddingVertical: 15,
+    paddingHorizontal: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
   },
 });
 

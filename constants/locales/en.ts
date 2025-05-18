@@ -14,9 +14,17 @@ export default {
     emptyState: 'Medicine cabinet is empty',
     addTitle: 'Add medicine',
     nameLabel: 'Name',
+    selectUnit: 'Select unit',
     quantity: 'Quantity',
     expiryDate: 'Expiry date',
     setReminder: 'Set reminder'
+  },
+  units: {
+    tablet: 'tablet',
+    capsule: 'capsule',
+    injection: 'injection',
+    bottle: 'bottle',
+    pack: 'pack',
   },
   actions: {
     save: 'Save',
