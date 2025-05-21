@@ -26,22 +26,38 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   const [language, setLanguageState] = useState<Language>('en');
   const [userName, setUserNameState] = useState('');
 
+  const getDeviceLanguage = (): Language => {
+    const locales = Localization.getLocales();
+    if (
+      Array.isArray(locales) &&
+      locales.length > 0 &&
+      typeof locales[0].languageCode === 'string'
+    ) {
+      const lang = locales[0].languageCode;
+      if (translations[lang as Language]) {
+        return lang as Language;
+      }
+    }
+    return 'en';
+  };
+
   useEffect(() => {
     const loadData = async () => {
       try {
         const [savedLang, savedName] = await Promise.all([
           AsyncStorage.getItem('appLanguage'),
-          AsyncStorage.getItem('userName')
+          AsyncStorage.getItem('userName'),
         ]);
 
         if (savedLang && translations[savedLang as Language]) {
           setLanguageState(savedLang as Language);
         } else {
-          const deviceLang = Localization.locale.split('-')[0] as Language;
-          setLanguageState(translations[deviceLang] ? deviceLang : 'en');
+          setLanguageState(getDeviceLanguage());
         }
 
-        if (savedName) setUserNameState(savedName);
+        if (savedName) {
+          setUserNameState(savedName);
+        }
       } catch (error) {
         console.error('Error loading data:', error);
       }
@@ -81,7 +97,7 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
         toggleLanguage,
         t: translations[language],
         userName,
-        setUserName
+        setUserName,
       }}
     >
       {children}

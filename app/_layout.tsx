@@ -1,12 +1,13 @@
+// app/_layout.tsx
 import { Slot } from 'expo-router';
 import { TimeFormatProvider } from '@/contexts/TimeFormatContext';
 import { ThemeProvider, useThemeMode } from '@/contexts/ThemeContext';
 import { PaperProvider } from 'react-native-paper';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { MedicineProvider } from '@/contexts/MedicineContext';
-import { useState, useEffect } from 'react';
-import WelcomeScreen from '@/app/welcome';
 import { SettingsProvider } from '@/contexts/SettingsContext';
+import { useEffect } from 'react';
+import * as SplashScreen from 'expo-splash-screen';
 
 function AppWrapper({ children }: { children: React.ReactNode }) {
   const { theme } = useThemeMode();
@@ -14,11 +15,11 @@ function AppWrapper({ children }: { children: React.ReactNode }) {
 }
 
 export default function RootLayout() {
-  const [isLoading, setIsLoading] = useState(true);
-
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 2000);
-    return () => clearTimeout(timer);
+    const hide = async () => {
+      await SplashScreen.hideAsync();
+    };
+    hide();
   }, []);
 
   return (
@@ -28,7 +29,7 @@ export default function RootLayout() {
           <LanguageProvider>
             <SettingsProvider>
               <MedicineProvider>
-                {isLoading ? <WelcomeScreen /> : <Slot />}
+                <Slot />
               </MedicineProvider>
             </SettingsProvider>
           </LanguageProvider>

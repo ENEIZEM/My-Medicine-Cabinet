@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "my-medicine-cabinet",
+    "name": "My Medicine Сabinet",
     "slug": "my-medicine-cabinet",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -8,15 +8,17 @@
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "developmentClient": true,
     "ios": {
       "supportsTablet": true
     },
     "android": {
+      "edgeToEdgeEnabled": true,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.anonymous.mymedicinecabinet"
+      "package": "com.eneizem.mymedicinecabinet.app"
     },
     "web": {
       "bundler": "metro",
@@ -34,10 +36,7 @@
           "backgroundColor": "#ffffff"
         }
       ],
-      "expo-sqlite",
       "expo-localization",
-      "expo-font",
-      "expo-web-browser",
       [
         "@react-native-community/datetimepicker",
         {
@@ -48,6 +47,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "998bc49d-3d29-4367-86c8-673334fad2c7"
+      }
     }
   }
 }

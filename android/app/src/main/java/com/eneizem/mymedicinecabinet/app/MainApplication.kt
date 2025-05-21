@@ -1,4 +1,4 @@
-package com.anonymous.mymedicinecabinet
+package com.eneizem.mymedicinecabinet.app
 
 import android.app.Application
 import android.content.res.Configuration
