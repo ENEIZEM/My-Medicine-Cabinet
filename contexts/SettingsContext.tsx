@@ -1,5 +1,7 @@
+// contexts/SettingsContext.tsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useColorScheme } from 'react-native';
 
 type ThemeMode = 'light' | 'dark' | 'system';
 
@@ -10,6 +12,7 @@ interface SettingsContextType {
   setUserName: (name: string) => Promise<void>;
   themeMode: ThemeMode;
   setThemeMode: (mode: ThemeMode) => Promise<void>;
+  resolvedTheme: 'light' | 'dark'; // 👈 добавлено
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
@@ -18,6 +21,10 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [is12HourFormat, setIs12HourFormat] = useState(false);
   const [userName, setUserNameState] = useState('');
   const [themeMode, setThemeModeState] = useState<ThemeMode>('system');
+
+  const systemScheme = useColorScheme(); // 👈 light / dark / null
+  const resolvedTheme: 'light' | 'dark' =
+    themeMode === 'system' ? (systemScheme === 'dark' ? 'dark' : 'light') : themeMode;
 
   useEffect(() => {
     const loadSettings = async () => {
@@ -30,7 +37,11 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
         if (format) setIs12HourFormat(format === '12');
         if (savedName) setUserNameState(savedName);
-        if (savedTheme === 'light' || savedTheme === 'dark' || savedTheme === 'system') {
+        if (
+          savedTheme === 'light' ||
+          savedTheme === 'dark' ||
+          savedTheme === 'system'
+        ) {
           setThemeModeState(savedTheme);
         }
       } catch (error) {
@@ -71,7 +82,15 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   return (
     <SettingsContext.Provider
-      value={{ is12HourFormat, toggleTimeFormat, userName, setUserName, themeMode, setThemeMode }}
+      value={{
+        is12HourFormat,
+        toggleTimeFormat,
+        userName,
+        setUserName,
+        themeMode,
+        setThemeMode,
+        resolvedTheme, // 👈 обязательно добавлен
+      }}
     >
       {children}
     </SettingsContext.Provider>

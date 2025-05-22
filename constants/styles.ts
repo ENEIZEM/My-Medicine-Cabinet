@@ -11,11 +11,6 @@ export const commonStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  title: {
-    fontSize: 24,
-    fontWeight: '500',
-    marginBottom: 24,
-  },
   input: {
     fontSize: 18,
     paddingVertical: 10,
@@ -36,5 +31,10 @@ export const commonStyles = StyleSheet.create({
   paddingHorizontal: 5,
   borderBottomWidth: 1,
   borderBottomColor: '#f0f0f0',
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: '500',
+    marginBottom: 16,
   },
 });

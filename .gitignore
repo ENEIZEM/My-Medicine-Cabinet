@@ -4,6 +4,7 @@
 node_modules/
 
 # Expo
+*.keystore
 .expo/
 dist/
 web-build/
@@ -36,3 +37,35 @@ yarn-error.*
 *.tsbuildinfo
 
 app-example
+
+# Android Keystore
+android/build/
+android/.gradle/
+android/app/build/
+android/app/.cxx/
+android/app/src/main/assets/
+android/app/src/main/res/raw/
+android/app/src/debug/
+android/.idea/
+!android/.idea/misc.xml
+!android/.idea/modules.xml
+!android/.idea/gradle.xml
+!android/.idea/libraries/
+!android/.idea/workspace.xml
+android/app/release.apk
+android/app/debug.apk
+android/*.keystore
+android/gradle.properties
+
+# iOS
+ios/build/
+ios/*.xcworkspace/
+ios/*.xcuserstate
+ios/.xccheckout
+ios/DerivedData/
+ios/Pods/
+ios/.idea/
+ios/App/
+ios/YourProjectName.xcodeproj/project.xcworkspace/
+ios/YourProjectName.xcodeproj/xcuserdata/
+ios/YourProjectName.xcodeproj/project.xcworkspace/xcuserdata/

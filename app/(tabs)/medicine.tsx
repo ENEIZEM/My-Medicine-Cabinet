@@ -14,12 +14,14 @@ import AddFab from '@/components/ui/AddFab';
 import AddMedicineModal from '@/app/(modals)/add-medicine';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { commonStyles } from '@/constants/styles';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function MedicineScreen() {
   const { medicines, deleteMedicine } = useMedicine();
   const { t } = useLanguage();
   const theme = useTheme();
   const { colors } = theme;
+  const insets = useSafeAreaInsets();
 
   const [editingMedicine, setEditingMedicine] = useState<Medicine | null>(null);
   const [selectedForDelete, setSelectedForDelete] = useState<Medicine | null>(null);
@@ -32,13 +34,36 @@ export default function MedicineScreen() {
   };
 
   return (
-    <View style={[commonStyles.container, { backgroundColor: colors.background }]}>
-      {medicines.length === 0 ? (
-        <Text style={{ color: colors.onBackground }}>{t.medicine.emptyState}</Text>
-      ) : (
+    <View
+      style={[
+        commonStyles.container,
+        {
+          backgroundColor: colors.background,
+          paddingTop: insets.top + 16,
+          paddingBottom: insets.bottom + 16,
+        },
+      ]}
+    >
+        {medicines.length === 0 ? (
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <Text
+              style={{
+                fontSize: 22,
+                fontWeight: '600',
+                color: colors.primary,
+                opacity: 0.9,
+                textAlign: 'center',
+                paddingHorizontal: 24,
+              }}
+            >
+              {t.medicine.emptyState}
+            </Text>
+          </View>
+        ) : (
         <FlatList
           data={medicines}
           keyExtractor={(item) => item.id}
+          contentContainerStyle={{ paddingTop: 8 }}
           renderItem={({ item }) => (
             <Card
               style={{
@@ -47,8 +72,13 @@ export default function MedicineScreen() {
                 padding: 12,
               }}
             >
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                {/* Контент лекарства слева */}
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
+              >
                 <View>
                   <Text style={{ color: colors.onSurface }} variant="titleMedium">
                     {item.name}
@@ -59,7 +89,6 @@ export default function MedicineScreen() {
                   <Text style={{ color: colors.onSurface }}>{item.expiryDate}</Text>
                 </View>
 
-                {/* Кнопки справа */}
                 <View style={{ flexDirection: 'row' }}>
                   <IconButton
                     icon="pencil"
@@ -82,26 +111,27 @@ export default function MedicineScreen() {
 
       <AddFab to="/(modals)/add-medicine" label={t.medicine.addTitle} />
 
-      {/* Модалка редактирования */}
       {editingMedicine && (
         <AddMedicineModal
           visible={!!editingMedicine}
           medicineToEdit={editingMedicine}
-          onDismiss={() => {
-            setEditingMedicine(null); // ✅ гарантированно сбрасываем
-          }}
+          onDismiss={() => setEditingMedicine(null)}
         />
       )}
 
-      {/* Кастомный диалог удаления */}
       <Portal>
-        <Dialog visible={!!selectedForDelete} onDismiss={() => setSelectedForDelete(null)}>
+        <Dialog
+          visible={!!selectedForDelete}
+          onDismiss={() => setSelectedForDelete(null)}
+        >
           <Dialog.Title>{t.actions.confirm}</Dialog.Title>
           <Dialog.Content>
             <Text style={{ color: colors.onSurface }}>{t.actions.deleteConfirm}</Text>
           </Dialog.Content>
           <Dialog.Actions>
-            <Button onPress={() => setSelectedForDelete(null)}>{t.actions.cancel}</Button>
+            <Button onPress={() => setSelectedForDelete(null)}>
+              {t.actions.cancel}
+            </Button>
             <Button onPress={handleConfirmDelete} textColor={colors.error}>
               {t.actions.delete}
             </Button>

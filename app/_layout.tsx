@@ -1,16 +1,18 @@
 // app/_layout.tsx
 import { Slot } from 'expo-router';
 import { TimeFormatProvider } from '@/contexts/TimeFormatContext';
-import { ThemeProvider, useThemeMode } from '@/contexts/ThemeContext';
-import { PaperProvider } from 'react-native-paper';
+import { PaperProvider, MD3DarkTheme, MD3LightTheme } from 'react-native-paper';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { MedicineProvider } from '@/contexts/MedicineContext';
-import { SettingsProvider } from '@/contexts/SettingsContext';
+import { SettingsProvider, useSettings } from '@/contexts/SettingsContext';
 import { useEffect } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 
 function AppWrapper({ children }: { children: React.ReactNode }) {
-  const { theme } = useThemeMode();
+  const { resolvedTheme } = useSettings();
+
+  const theme = resolvedTheme === 'dark' ? MD3DarkTheme : MD3LightTheme;
+
   return <PaperProvider theme={theme}>{children}</PaperProvider>;
 }
 
@@ -24,17 +26,15 @@ export default function RootLayout() {
 
   return (
     <TimeFormatProvider>
-      <ThemeProvider>
+      <SettingsProvider>
         <AppWrapper>
           <LanguageProvider>
-            <SettingsProvider>
-              <MedicineProvider>
-                <Slot />
-              </MedicineProvider>
-            </SettingsProvider>
+            <MedicineProvider>
+              <Slot />
+            </MedicineProvider>
           </LanguageProvider>
         </AppWrapper>
-      </ThemeProvider>
+      </SettingsProvider>
     </TimeFormatProvider>
   );
 }

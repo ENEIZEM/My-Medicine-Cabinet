@@ -1,9 +1,11 @@
+// app/(tabs)/profile.tsx
 import { View, TouchableOpacity } from 'react-native';
 import { Text, TextInput, useTheme } from 'react-native-paper';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useState } from 'react';
 import { commonStyles } from '@/constants/styles';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function ProfileScreen() {
   const { colors } = useTheme();
@@ -18,17 +20,19 @@ export default function ProfileScreen() {
   } = useSettings();
 
   const [name, setName] = useState(userName);
+  const insets = useSafeAreaInsets();
 
   const handleSaveName = () => {
     setUserName(name);
   };
 
-  const toggleLanguage = () => {
+  const toggleLang = () => {
     setLanguage(language === 'ru' ? 'en' : 'ru');
   };
 
   const cycleTheme = () => {
-    const nextMode = themeMode === 'system' ? 'light' : themeMode === 'light' ? 'dark' : 'system';
+    const nextMode =
+      themeMode === 'system' ? 'light' : themeMode === 'light' ? 'dark' : 'system';
     setThemeMode(nextMode);
   };
 
@@ -44,11 +48,16 @@ export default function ProfileScreen() {
   };
 
   return (
-    <View style={[commonStyles.container, { backgroundColor: colors.background }]}>
-      <Text style={[commonStyles.title, { color: colors.onBackground }]}>
-        {t.profileTitle}
-      </Text>
-
+    <View
+      style={[
+        commonStyles.container,
+        {
+          backgroundColor: colors.background,
+          paddingTop: insets.top + 16,
+          paddingBottom: insets.bottom + 16,
+        },
+      ]}
+    >
       <TextInput
         style={[
           commonStyles.input,
@@ -58,12 +67,12 @@ export default function ProfileScreen() {
         placeholderTextColor={colors.onSurfaceVariant}
         value={name}
         onChangeText={setName}
+        onBlur={handleSaveName}            // 👈 добавлено
         onSubmitEditing={handleSaveName}
       />
-
       <View style={commonStyles.row}>
         <Text style={{ color: colors.onSurface }}>{t.language}</Text>
-        <TouchableOpacity onPress={toggleLanguage}>
+        <TouchableOpacity onPress={toggleLang}>
           <Text style={{ color: colors.primary, fontWeight: '500' }}>
             {language === 'ru' ? 'Русский' : 'English'}
           </Text>
