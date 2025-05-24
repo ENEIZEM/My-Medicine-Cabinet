@@ -16,7 +16,7 @@ export default {
     nameLabel: 'Название',
     quantity: 'Количество',
     selectUnit: 'Выберите единицу',
-    expiryDate: 'Срок годности',
+    expiryDate: 'Срок годности, до',
     setReminder: 'Напоминание',
     editTitle: 'Редактировать лекарство',
   },

@@ -16,9 +16,10 @@ export default {
     nameLabel: 'Name',
     selectUnit: 'Select unit',
     quantity: 'Quantity',
-    expiryDate: 'Expiry date',
+    expiryDate: 'Expiry date, up to',
     setReminder: 'Set reminder',
     editTitle: 'Edit medicine',
+    expiryDateLabel: 'Expiration date'
   },
   units: {
     tablet: 'tablet',

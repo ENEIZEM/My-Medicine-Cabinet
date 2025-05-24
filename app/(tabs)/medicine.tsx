@@ -8,10 +8,10 @@ import {
   Dialog,
   Portal,
   Button,
+  FAB,
 } from 'react-native-paper';
 import { useMedicine, Medicine } from '@/contexts/MedicineContext';
-import AddFab from '@/components/ui/AddFab';
-import AddMedicineModal from '@/app/(modals)/add-medicine';
+import AddMedicineModal from '@/components/AddMedicineModal';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { commonStyles } from '@/constants/styles';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -25,6 +25,7 @@ export default function MedicineScreen() {
 
   const [editingMedicine, setEditingMedicine] = useState<Medicine | null>(null);
   const [selectedForDelete, setSelectedForDelete] = useState<Medicine | null>(null);
+  const [showAddModal, setShowAddModal] = useState(false);
 
   const handleConfirmDelete = () => {
     if (selectedForDelete) {
@@ -44,22 +45,15 @@ export default function MedicineScreen() {
         },
       ]}
     >
-        {medicines.length === 0 ? (
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <Text
-              style={{
-                fontSize: 22,
-                fontWeight: '600',
-                color: colors.primary,
-                opacity: 0.9,
-                textAlign: 'center',
-                paddingHorizontal: 24,
-              }}
-            >
-              {t.medicine.emptyState}
-            </Text>
-          </View>
-        ) : (
+      <Text style={[commonStyles.title, { color: colors.onBackground }]}>
+        {t.medicineTitle}
+      </Text>
+
+      {medicines.length === 0 ? (
+        <Text style={{ color: colors.onBackground, textAlign: 'center', marginTop: 32 }}>
+          {t.medicine.emptyState}
+        </Text>
+      ) : (
         <FlatList
           data={medicines}
           keyExtractor={(item) => item.id}
@@ -109,8 +103,28 @@ export default function MedicineScreen() {
         />
       )}
 
-      <AddFab to="/(modals)/add-medicine" label={t.medicine.addTitle} />
+      {/* FAB — добавление */}
+      <FAB
+        icon="plus"
+        label={t.medicine.addTitle}
+        onPress={() => setShowAddModal(true)}
+        style={{
+          position: 'absolute',
+          margin: 16,
+          right: 0,
+          bottom: 0,
+        }}
+      />
 
+      {/* Добавление */}
+      {showAddModal && (
+        <AddMedicineModal
+          visible={showAddModal}
+          onDismiss={() => setShowAddModal(false)}
+        />
+      )}
+
+      {/* Редактирование */}
       {editingMedicine && (
         <AddMedicineModal
           visible={!!editingMedicine}
@@ -119,6 +133,7 @@ export default function MedicineScreen() {
         />
       )}
 
+      {/* Удаление */}
       <Portal>
         <Dialog
           visible={!!selectedForDelete}
