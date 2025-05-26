@@ -1,45 +1,89 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
-import { Platform } from 'react-native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { useTheme, Text, Icon } from 'react-native-paper';
+import ScheduleScreen from './schedule';
+import MedicineScreen from './medicine';
+import ProfileScreen from './profile';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+const Tab = createBottomTabNavigator();
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
+export default function TabsLayout() {
+  const theme = useTheme();
+  const { t } = useLanguage();
+  const insets = useSafeAreaInsets();
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            // Use a transparent background on iOS to show the blur effect
-            position: 'absolute',
-          },
-          default: {},
-        }),
-      }}>
-      <Tabs.Screen
-        name="index"
+        <Tab.Navigator
+          screenOptions={{
+            headerShown: false,
+            tabBarActiveTintColor: theme.colors.primary,
+            tabBarInactiveTintColor: theme.colors.onSurfaceVariant,
+            tabBarStyle: {
+              backgroundColor: theme.colors.surface,
+              borderTopColor: theme.colors.outline,
+              height: 64 + insets.bottom,         // 👈 адаптивная высота
+              paddingBottom: insets.bottom + 6,   // 👈 учёт кнопок навигации
+              paddingTop: 6,
+            },
+            tabBarIconStyle: {
+              marginBottom: -2,
+            }
+          }}
+        >
+      <Tab.Screen
+        name="schedule"
+        component={ScheduleScreen}
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          tabBarIcon: ({ color }) => <Icon source="calendar" size={28} color={color} />,
+          tabBarLabel: ({ color, focused }) => (
+            <Text
+              style={{
+                fontSize: 15,
+                fontWeight: focused ? '700' : '500',
+                color,
+              }}
+            >
+              {t.scheduleTitle}
+            </Text>
+          ),
         }}
       />
-      <Tabs.Screen
-        name="explore"
+      <Tab.Screen
+        name="medicine"
+        component={MedicineScreen}
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          tabBarIcon: ({ color }) => <Icon source="pill" size={28} color={color} />,
+          tabBarLabel: ({ color, focused }) => (
+          <Text
+            style={{
+              fontSize: 15,
+              fontWeight: focused ? '700' : '500',
+              color,
+            }}
+          >
+            {t.medicineTitle}
+          </Text>
+        )
         }}
       />
-    </Tabs>
+      <Tab.Screen
+        name="profile"
+        component={ProfileScreen}
+        options={{
+          tabBarIcon: ({ color }) => <Icon source="account" size={28} color={color} />,
+          tabBarLabel: ({ color, focused }) => (
+          <Text
+            style={{
+              fontSize: 15,
+              fontWeight: focused ? '700' : '500',
+              color,
+            }}
+          >
+            {t.profileTitle}
+          </Text>
+        )
+        }}
+      />
+    </Tab.Navigator>
   );
 }

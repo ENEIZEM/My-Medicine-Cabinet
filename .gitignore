@@ -4,6 +4,7 @@
 node_modules/
 
 # Expo
+*.keystore
 .expo/
 dist/
 web-build/
@@ -36,3 +37,9 @@ yarn-error.*
 *.tsbuildinfo
 
 app-example
+
+# Android Keystore
+android/
+
+# iOS
+ios/
