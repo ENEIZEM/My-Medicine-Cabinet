@@ -39,7 +39,7 @@ export default function TabsLayout() {
             <Text
               style={{
                 fontSize: 15,
-                fontWeight: focused ? '700' : '500',
+                fontWeight: focused ? '900' : 'bold',
                 color,
               }}
             >
@@ -57,7 +57,7 @@ export default function TabsLayout() {
           <Text
             style={{
               fontSize: 15,
-              fontWeight: focused ? '700' : '500',
+              fontWeight: focused ? '900' : 'bold',
               color,
             }}
           >
@@ -75,7 +75,7 @@ export default function TabsLayout() {
           <Text
             style={{
               fontSize: 15,
-              fontWeight: focused ? '700' : '500',
+              fontWeight: focused ? '900' : 'bold',
               color,
             }}
           >

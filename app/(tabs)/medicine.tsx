@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { View, FlatList } from 'react-native';
+import Animated, { useSharedValue, withTiming, useAnimatedStyle } from 'react-native-reanimated';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   Text,
   IconButton,
@@ -48,26 +50,43 @@ export default function MedicineScreen() {
       case 'ydm': return `${y}${sep}${d}${sep}${m}`;
     }
   };
+    const opacity = useSharedValue(0);
+
+    useFocusEffect(
+      React.useCallback(() => {
+        opacity.value = 0;
+        opacity.value = withTiming(1, { duration: 300 });
+        return () => {
+          opacity.value = 0;
+        };
+      }, [])
+    );
+
+    const animatedStyle = useAnimatedStyle(() => ({
+      opacity: opacity.value,
+    }));
 
   return (
-    <View
-      style={[
-        commonStyles.container,
-        {
-          backgroundColor: colors.background,
-          paddingTop: insets.top + 16,
-          paddingBottom: insets.bottom + 16,
-        },
-      ]}
-    >
-      <Text style={[commonStyles.title, { color: colors.onBackground }]}>
-        {t.medicine.title}
-      </Text>
+    <Animated.View style={[animatedStyle, {
+      backgroundColor: colors.background,
+      paddingTop: insets.top + 16,
+      paddingBottom: insets.bottom + 16,
+      }, commonStyles.container]}>
 
       {medicines.length === 0 ? (
-        <Text style={{ color: colors.onBackground, textAlign: 'center', marginTop: 32 }}>
-          {t.medicine.emptyState}
-        </Text>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Text
+            style={{
+              color: colors.primary,
+              fontSize: 20,
+              fontWeight: 'bold',
+              textAlign: 'center',
+              paddingHorizontal: 24,
+            }}
+          >
+            {t.medicine.emptyState}
+          </Text>
+        </View>
       ) : (
         <FlatList
           data={medicines}
@@ -89,14 +108,14 @@ export default function MedicineScreen() {
                 }}
               >
                 <View>
-                  <Text style={{ color: colors.onSurface }} variant="titleMedium">
-                    {item.name}
+                  <Text style={{ color: colors.onSurface, fontSize: 16, fontWeight: 'bold', }} variant="titleMedium">
+                    {item.name} 
                   </Text>
-                  <Text style={{ color: colors.onSurface }}>
+                  <Text style={{ color: colors.onSurface, fontSize: 16, }}>
                     {item.quantity}{' '}
                     {t.medicine.units[item.form as keyof typeof t.medicine.units] ?? item.form}
                   </Text>
-                  <Text style={{ color: colors.onSurface }}>
+                  <Text style={{ color: colors.onSurface, fontSize: 16, }}>
                     {formatDate(item.expiryDate, dateOrder, dateSeparator)}
                   </Text>
 
@@ -156,20 +175,26 @@ export default function MedicineScreen() {
         >
           <Dialog.Title>{t.actions.confirm}</Dialog.Title>
           <Dialog.Content>
-            <Text style={{ color: colors.onSurface }}>
+            <Text style={{ color: colors.onSurface, fontSize: 16, }}>
               {t.actions.deleteConfirm}
             </Text>
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={() => setSelectedForDelete(null)}>
+            <Text style={{ fontSize:16 }}>
               {t.actions.cancel}
+              </Text>
             </Button>
-            <Button onPress={handleConfirmDelete} textColor={colors.error}>
+            <Button
+              onPress={handleConfirmDelete}
+              textColor={colors.error}
+              labelStyle={{ fontSize: 16, fontWeight: 'bold' }}
+            >
               {t.actions.delete}
             </Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>
-    </View>
+    </Animated.View>
   );
 }

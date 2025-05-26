@@ -25,10 +25,29 @@ interface Props {
   medicineToEdit?: Medicine;
 }
 
+function formatDate(
+  date: Date,
+  order: 'dmy' | 'ymd' | 'mdy' | 'ydm',
+  sep: string
+): string {
+  const d = String(date.getDate()).padStart(2, '0');
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const y = date.getFullYear();
+
+  switch (order) {
+    case 'dmy': return `${d}${sep}${m}${sep}${y}`;
+    case 'ymd': return `${y}${sep}${m}${sep}${d}`;
+    case 'mdy': return `${m}${sep}${d}${sep}${y}`;
+    case 'ydm': return `${y}${sep}${d}${sep}${m}`;
+    default: return date.toLocaleDateString();
+  }
+}
+
+
 export default function AddMedicineModal({ visible, onDismiss, medicineToEdit }: Props) {
   const { t } = useLanguage();
   const { addMedicine, updateMedicine } = useMedicine();
-  const { resolvedTheme } = useSettings();
+  const { resolvedTheme, dateOrder, dateSeparator } = useSettings();
   const theme = useTheme();
 
   const isEditMode = !!medicineToEdit;
@@ -238,13 +257,13 @@ export default function AddMedicineModal({ visible, onDismiss, medicineToEdit }:
           <View style={styles.rowWrap}>
             <Text style={styles.labelInline}>{t.medicine.before}</Text>
             <Button
-              icon="calendar"
-              mode="outlined"
-              onPress={() => setShowDatePicker(true)}
-              style={styles.dateButton}
-            >
-              {form.expiryDate.toLocaleDateString()}
-            </Button>
+            icon="calendar"
+            mode="outlined"
+            onPress={() => setShowDatePicker(true)}
+            style={styles.dateButton}
+             >
+            {formatDate(form.expiryDate, dateOrder, dateSeparator)}
+          </Button>
           </View>
           {showDatePicker && Platform.OS !== 'web' && (
             <DateTimePicker

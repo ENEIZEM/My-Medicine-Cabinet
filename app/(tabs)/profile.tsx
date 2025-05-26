@@ -7,6 +7,11 @@ import { useState } from 'react';
 import { commonStyles } from '@/constants/styles';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { DateOrder, DateSeparator } from '@/contexts/SettingsContext';
+import Animated, { useSharedValue, withTiming, useAnimatedStyle } from 'react-native-reanimated';
+import { useFocusEffect } from '@react-navigation/native';
+import React from 'react';
+
+
 
 
 export default function ProfileScreen() {
@@ -53,21 +58,34 @@ export default function ProfileScreen() {
     }
   };
 
+const opacity = useSharedValue(0);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      opacity.value = 0;
+      opacity.value = withTiming(1, { duration: 300 });
+      return () => {
+        opacity.value = 0;
+      };
+    }, [])
+  );
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
+
+
   return (
-    <View
-      style={[
-        commonStyles.container,
-        {
-          backgroundColor: colors.background,
-          paddingTop: insets.top + 16,
-          paddingBottom: insets.bottom + 16,
-        },
-      ]}
-    >
+    <Animated.View style={[animatedStyle, {
+      backgroundColor: colors.background,
+      paddingTop: insets.top + 16,
+      paddingBottom: insets.bottom + 16,
+    }, commonStyles.container]}>
+
       <TextInput
         style={[
           commonStyles.input,
-          { color: colors.onBackground, borderBottomColor: colors.primary },
+          { color: colors.onBackground, borderBottomColor: colors.primary, },
         ]}
         placeholder={t.namePlaceholder}
         placeholderTextColor={colors.onSurfaceVariant}
@@ -77,33 +95,33 @@ export default function ProfileScreen() {
         onSubmitEditing={handleSaveName}
       />
       <View style={commonStyles.row}>
-        <Text style={{ color: colors.onSurface, fontSize: 16 }}>{t.language}</Text>
+        <Text style={{ color: colors.onSurface, fontSize: 16, }}>{t.language}</Text>
         <TouchableOpacity onPress={toggleLang}>
-          <Text style={{ color: colors.primary, fontWeight: '500' }}>
-            {language === 'ru' ? 'Русский' : 'English'}
+          <Text style={{ color: colors.primary, fontWeight: 'bold', }}>
+            {language === 'ru' ? t.changeLang : t.changeLang}
           </Text>
         </TouchableOpacity>
       </View>
 
       <View style={commonStyles.row}>
-        <Text style={{ color: colors.onSurface, fontSize: 16 }}>{t.timeFormat}</Text>
+        <Text style={{ color: colors.onSurface, fontSize: 16, }}>{t.timeFormat}</Text>
         <TouchableOpacity onPress={toggleTimeFormat}>
-          <Text style={{ color: colors.primary, fontWeight: '500' }}>
+          <Text style={{ color: colors.primary, fontWeight: 'bold', }}>
             {is12HourFormat ? '12h' : '24h'}
           </Text>
         </TouchableOpacity>
       </View>
 
       <View style={commonStyles.row}>
-        <Text style={{ color: colors.onSurface, fontSize: 16 }}>{t.theme}</Text>
+        <Text style={{ color: colors.onSurface, fontSize: 16,}}>{t.theme}</Text>
         <TouchableOpacity onPress={cycleTheme}>
-          <Text style={{ color: colors.primary, fontWeight: '500' }}>
+          <Text style={{ color: colors.primary, fontWeight: 'bold', }}>
             {getThemeLabel()}
           </Text>
         </TouchableOpacity>
       </View>
       <View style={commonStyles.row}>
-        <Text style={{ color: colors.onSurface, fontSize: 16 }}>
+        <Text style={{ color: colors.onSurface, fontSize: 16,}}>
           {t.dateFormatOrder}
         </Text>
         <TouchableOpacity onPress={() => {
@@ -111,14 +129,14 @@ export default function ProfileScreen() {
           const next = orders[(orders.indexOf(dateOrder) + 1) % orders.length];
           setDateOrder(next);
         }}>
-          <Text style={{ color: colors.primary, fontWeight: '500', fontSize: 16 }}>
+          <Text style={{ color: colors.primary, fontWeight: 'bold', fontSize: 16 }}>
             {t.dateFormats[dateOrder]}
           </Text>
         </TouchableOpacity>
       </View>
 
       <View style={commonStyles.row}>
-        <Text style={{ color: colors.onSurface, fontSize: 16 }}>
+        <Text style={{ color: colors.onSurface, fontSize: 16,}}>
           {t.dateSeparator}
         </Text>
         <TouchableOpacity onPress={() => {
@@ -126,7 +144,7 @@ export default function ProfileScreen() {
           const next = separators[(separators.indexOf(dateSeparator) + 1) % separators.length];
           setDateSeparator(next);
         }}>
-          <Text style={{ color: colors.primary, fontWeight: '500', fontSize: 16 }}>
+          <Text style={{ color: colors.primary, fontWeight: 'bold', fontSize: 16 }}>
             {{
               '.': t.separatorDot,
               '-': t.separatorDash,
@@ -136,6 +154,6 @@ export default function ProfileScreen() {
         </TouchableOpacity>
       </View>
 
-    </View>
+    </Animated.View>
   );
 }

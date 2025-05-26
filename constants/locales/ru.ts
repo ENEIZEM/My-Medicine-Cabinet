@@ -70,6 +70,7 @@ export default {
   language: 'Язык',
   timeFormat: 'Формат времени',
   theme: 'Тема',
+  changeLang:"Сменить на English",
   themes: {
     system: 'Системная',
     light: 'Светлая',
@@ -82,7 +83,7 @@ export default {
   separatorSpace: 'Пробел',
   dateFormats: {
     dmy: 'ДД.ММ.ГГГГ',
-    ymd: 'ГГГГ-ММ-ДД',
+    ymd: 'ГГГГ.ММ.ДД',
     mdy: 'ММ.ДД.ГГГГ',
     ydm: 'ГГГГ.ДД.ММ',
 }

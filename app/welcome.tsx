@@ -64,7 +64,7 @@ export default function WelcomeScreen({ onReady }: WelcomeScreenProps) {
 
       <Animated.View entering={FadeIn.delay(100).duration(300)}>
         <Animated.View style={fadeStyle}>
-          <Text style={{ fontSize: 28, fontWeight: '300', color: colors.onBackground }}>
+          <Text style={{ fontSize: 28, color: colors.onBackground, fontWeight: 'bold', }}>
             {greeting}
           </Text>
         </Animated.View>
@@ -73,7 +73,7 @@ export default function WelcomeScreen({ onReady }: WelcomeScreenProps) {
       {!!userName && (
         <Animated.View entering={FadeIn.delay(200).duration(300)}>
           <Animated.View style={fadeStyle}>
-            <Text style={{ fontSize: 32, fontWeight: '600', color: colors.primary }}>
+            <Text style={{ fontSize: 32, fontWeight: 'bold', color: colors.primary }}>
               {userName}
             </Text>
           </Animated.View>
