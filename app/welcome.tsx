@@ -64,7 +64,7 @@ export default function WelcomeScreen({ onReady }: WelcomeScreenProps) {
 
       <Animated.View entering={FadeIn.delay(100).duration(300)}>
         <Animated.View style={fadeStyle}>
-          <Text style={{ fontSize: 28, color: colors.onBackground, fontWeight: 'bold', }}>
+          <Text style={{ fontSize: 28, color: colors.onBackground}}>
             {greeting}
           </Text>
         </Animated.View>

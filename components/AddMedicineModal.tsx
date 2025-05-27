@@ -165,7 +165,7 @@ export default function AddMedicineModal({ visible, onDismiss, medicineToEdit }:
       <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <ScrollView
           ref={scrollRef}
-          contentContainerStyle={{ paddingBottom: 24 }}
+          contentContainerStyle={{  paddingBottom: 24}}
         >
           <Text style={[styles.title, { color: theme.colors.onBackground }]}>
             {isEditMode ? t.medicine.editTitle : t.medicine.addTitle}
@@ -340,8 +340,10 @@ const styles = StyleSheet.create({
   container: {
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
-    padding: 20,
-    maxHeight: '90%',
+    paddingRight: 20,
+    paddingLeft: 20,
+    paddingTop: 20,
+    maxHeight: '85%',
   },
   title: {
     fontSize: 20,

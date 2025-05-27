@@ -19,10 +19,11 @@ export default function TabsLayout() {
             tabBarActiveTintColor: theme.colors.primary,
             tabBarInactiveTintColor: theme.colors.onSurfaceVariant,
             tabBarStyle: {
+              borderTopWidth: 1,
               backgroundColor: theme.colors.surface,
               borderTopColor: theme.colors.outline,
-              height: 64 + insets.bottom,         // 👈 адаптивная высота
-              paddingBottom: insets.bottom + 6,   // 👈 учёт кнопок навигации
+              height: 68 + insets.bottom,
+              paddingBottom: insets.bottom,
               paddingTop: 6,
             },
             tabBarIconStyle: {
@@ -39,7 +40,7 @@ export default function TabsLayout() {
             <Text
               style={{
                 fontSize: 15,
-                fontWeight: focused ? '900' : 'bold',
+                fontWeight: focused ? '700' : '500',
                 color,
               }}
             >
@@ -57,7 +58,7 @@ export default function TabsLayout() {
           <Text
             style={{
               fontSize: 15,
-              fontWeight: focused ? '900' : 'bold',
+              fontWeight: focused ? '700' : '500',
               color,
             }}
           >
@@ -75,7 +76,7 @@ export default function TabsLayout() {
           <Text
             style={{
               fontSize: 15,
-              fontWeight: focused ? '900' : 'bold',
+              fontWeight: focused ? '700' : '500',
               color,
             }}
           >

@@ -7,13 +7,18 @@ import { MedicineProvider } from '@/contexts/MedicineContext';
 import { SettingsProvider, useSettings } from '@/contexts/SettingsContext';
 import { useEffect } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
 
 function AppWrapper({ children }: { children: React.ReactNode }) {
   const { resolvedTheme } = useSettings();
-
   const theme = resolvedTheme === 'dark' ? MD3DarkTheme : MD3LightTheme;
 
-  return <PaperProvider theme={theme}>{children}</PaperProvider>;
+  return (
+    <PaperProvider theme={theme}>
+      <StatusBar style={resolvedTheme === 'dark' ? 'light' : 'dark'} />
+      {children}
+    </PaperProvider>
+  );
 }
 
 export default function RootLayout() {

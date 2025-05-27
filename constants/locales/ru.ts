@@ -10,7 +10,7 @@ export default {
     default: 'Привет'
   },
   namePlaceholder: 'Ваше имя',
-    actions: {
+  actions: {
     save: 'Сохранить',
     cancel: 'Отмена',
     delete: 'Удалить',
@@ -18,6 +18,7 @@ export default {
     deleteConfirm: 'Вы действительно хотите удалить?',
     search: 'Поиск',
     select: 'Выбрать',
+    noResults: 'Упс. Такого пока нет',
   },
   medicine: {
     nameLabel: 'Название',
@@ -30,7 +31,7 @@ export default {
     selectDosagePlaceholder: 'Выберите дозировку',
     addTitle: 'Добавить лекарство',
     editTitle: 'Редактировать лекарство',
-    emptyState: 'У вас пока нет добавленных лекарств.',
+    emptyState: 'У вас пока нет добавленных лекарств',
     title: 'Аптечка',
     dosageLabelOneUnit: 'Дозировка одной {unit}',
     unitDefault: 'единицы',
@@ -68,6 +69,8 @@ export default {
     },
   },
   language: 'Язык',
+  times12: '12-ти часовой',
+  times24: '24-х часовой',
   timeFormat: 'Формат времени',
   theme: 'Тема',
   changeLang:"Сменить на English",
@@ -77,7 +80,7 @@ export default {
     dark: 'Тёмная',
   },
   dateFormatOrder: 'Порядок даты',
-  dateSeparator: 'Разделитель',
+  dateSeparator: 'Разделитель даты',
   separatorDot: 'Точка',
   separatorDash: 'Дефис',
   separatorSpace: 'Пробел',
