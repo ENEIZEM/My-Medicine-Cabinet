@@ -71,21 +71,40 @@ export default function MedicineScreen() {
     }, [])
   );
 
-  const filteredMedicines = medicines.filter((item) =>
+const filteredMedicines = medicines
+  .filter((item) =>
     item.name.toLowerCase().includes(searchText.toLowerCase())
-  );
+  )
+  .sort((a, b) => {
+    const dateA = new Date(a.expiryDate).getTime();
+    const dateB = new Date(b.expiryDate).getTime();
+    return dateA - dateB; // раньше — выше
+  });
 
-const getDaysLeftText = (isoDate: string): string => {
-  const today = new Date();
-  const expiry = new Date(isoDate);
-  const diffTime = expiry.getTime() - today.getTime();
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-  if (diffDays > 0) return t.expiry.dueIn.replace('{days}', String(diffDays));
-  if (diffDays === 0) return t.expiry.dueToday;
-  return t.expiry.expired.replace('{days}', String(Math.abs(diffDays)));
-};
+  const getDaysLeftText = (isoDate: string): string => {
+    const today = new Date();
+    const expiry = new Date(isoDate);
+    const diffTime = expiry.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
+    if (diffDays > 0) return t.expiry.dueIn.replace('{days}', String(diffDays));
+    if (diffDays === 0) return t.expiry.dueToday;
+    return t.expiry.expired.replace('{days}', String(Math.abs(diffDays)));
+  };
+  
+  const getUrgencyColor = (daysLeft: number): string => {
+    if (daysLeft <= 0) return colors.error; // Просрочено — цвет текста на красной карточке
+    if (daysLeft <= 7) {
+      // Градиент от оранжевого к красному
+      const ratio = (7 - daysLeft) / 6; // 0 (7дн) ... 1 (1день)
+      const red = Math.round(255);
+      const green = Math.round(165 - ratio * 100); // 165 → 65
+      const blue = Math.round(0);
+      return `rgb(${red},${green},${blue})`; // от оранжевого к красному
+    }
+    return colors.onSurfaceVariant; // Нормальный цвет
+  };
 
   return (
     <View
@@ -184,60 +203,76 @@ const getDaysLeftText = (isoDate: string): string => {
               data={filteredMedicines}
               keyExtractor={(item) => item.id}
               contentContainerStyle={{ paddingTop: 8, paddingBottom: 72 }}
-              renderItem={({ item }) => (
-                <Card
-                  style={{
-                    backgroundColor: colors.surface,
-                    marginBottom: 12,
-                    padding: 12,
-                  }}
-                >
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                    }}
-                  >
-                    <View style={{ flex: 1, paddingRight: 8 }}>
-                      <Text
-                        numberOfLines={2}
-                        ellipsizeMode="tail"
-                        style={{
-                          color: colors.onSurface,
-                          fontSize: 16,
-                          fontWeight: 'bold',
-                        }}
-                      >
-                        {item.name}
-                      </Text>
-                      <Text style={{ color: colors.onSurface, fontSize: 16 }}>
-                        {item.quantity}{' '}
-                        {t.medicine.units[item.form as keyof typeof t.medicine.units] ?? item.form}
-                      </Text>
-                        <Text style={{ color: colors.onSurface, fontSize: 16 }}>
-                          {formatDate(item.expiryDate, dateOrder, dateSeparator)}
-                        </Text>
-                    </View>
-                    <View style={{ flexShrink: 0, flexDirection: 'row' }}>
-                      <IconButton
-                        icon="pencil"
-                        size={25}
-                        onPress={() => setEditingMedicine(item)}
-                        iconColor={colors.primary}
-                        style={{ margin: 0, marginRight: 4 }}
-                      />
-                      <IconButton
-                        icon="delete"
-                        size={26}
-                        onPress={() => setSelectedForDelete(item)}
-                        iconColor={colors.error}
-                        style={{ margin: 0 }}
-                      />
-                    </View>
-                  </View>
-                </Card>
-              )}
+renderItem={({ item }) => {
+  const expiryDate = new Date(item.expiryDate);
+  const today = new Date();
+  const diffTime = expiryDate.getTime() - today.getTime();
+  const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  const isExpired = daysLeft < 0;
+
+  return (
+    <Card
+      style={{
+        backgroundColor: isExpired ? colors.errorContainer : colors.surface,
+        marginBottom: 12,
+        padding: 12,
+      }}
+    >
+      {/* Верхний блок: имя и количество с кнопками */}
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+        <View style={{ flex: 1, paddingRight: 8 }}>
+          <Text
+            numberOfLines={2}
+            ellipsizeMode="tail"
+            style={{
+              color: colors.onSurface,
+              fontSize: 16,
+              fontWeight: 'bold',
+            }}
+          >
+            {item.name}
+          </Text>
+          <Text style={{ color: colors.onSurface, fontSize: 16 }}>
+            {item.quantity}{' '}
+            {t.medicine.units[item.form as keyof typeof t.medicine.units] ?? item.form}
+          </Text>
+        </View>
+
+        {/* Кнопки — подняты вверх и выровнены по top */}
+        <View style={{ flexShrink: 0, flexDirection: 'row', alignItems: 'flex-start' }}>
+          <IconButton
+            icon="pencil"
+            size={25}
+            onPress={() => setEditingMedicine(item)}
+            iconColor={colors.primary}
+            style={{ margin: 0, marginRight: 4 }}
+          />
+          <IconButton
+            icon="delete"
+            size={26}
+            onPress={() => setSelectedForDelete(item)}
+            iconColor={colors.error}
+            style={{ margin: 0 }}
+          />
+        </View>
+      </View>
+
+      {/* Нижний блок: дата и остаток */}
+      <Text
+        numberOfLines={1}
+        ellipsizeMode="tail"
+        style={{
+          fontSize: 14,
+          marginTop: 6,
+          color: isExpired ? colors.onErrorContainer : getUrgencyColor(daysLeft),
+        }}
+      >
+        {t.medicine.before} {formatDate(item.expiryDate, dateOrder, dateSeparator)} — {getDaysLeftText(item.expiryDate)}
+      </Text>
+    </Card>
+  );
+}}
+
             />
           )}
         </Animated.View>

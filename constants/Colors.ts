@@ -140,7 +140,7 @@ const lightColors = {
   onTertiaryContainer: '#31111D',
   error: '#B3261E',
   onError: '#FFFFFF',
-  errorContainer: '#F9DEDC',
+  errorContainer: '#EA8C85',
   onErrorContainer: '#410E0B',
   background: '#FFFBFE',
   onBackground: '#1C1B1F',

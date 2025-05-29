@@ -12,6 +12,8 @@ export default {
   namePlaceholder: 'Your name',
   actions: {
     save: 'Save',
+    selectDate: 'Select a date',
+    close: 'Close',
     cancel: 'Cancel',
     delete: 'Delete',
     confirm: 'Confirm',

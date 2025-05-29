@@ -1,4 +1,5 @@
 import { View, Text } from 'react-native';
+import ScheduleHeader from '@/components/ui/ScheduleHeader';
 import { useTheme } from 'react-native-paper';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -32,19 +33,22 @@ export default function ScheduleScreen() {
       style={[
         {
           backgroundColor: colors.background,
-          paddingTop: insets.top + 6,
+          paddingTop: insets.top ,
           paddingBottom: insets.bottom,
         },
         commonStyles.container,
       ]}
     >
-      {visible && (
-        <Animated.View
-          entering={FadeIn.duration(200)}
-          exiting={FadeOut.duration(100)}
-        >
-        </Animated.View>
-      )}
+    {visible && (
+      <Animated.View
+        entering={FadeIn.duration(200)}
+        exiting={FadeOut.duration(100)}
+        style={{ flex: 1 }}
+      >
+        <ScheduleHeader />
+        {/* Здесь позже может быть остальной контент расписания */}
+      </Animated.View>
+    )}
     </View>
   );
 }

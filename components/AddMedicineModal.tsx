@@ -45,7 +45,7 @@ function formatDate(
 
 
 export default function AddMedicineModal({ visible, onDismiss, medicineToEdit }: Props) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { addMedicine, updateMedicine } = useMedicine();
   const { resolvedTheme, dateOrder, dateSeparator } = useSettings();
   const theme = useTheme();
@@ -272,6 +272,7 @@ export default function AddMedicineModal({ visible, onDismiss, medicineToEdit }:
               display="spinner"
               minimumDate={new Date()}
               themeVariant={resolvedTheme === 'dark' ? 'dark' : 'light'}
+              locale={language === 'ru' ? 'ru-RU' : 'en-US'}
               onChange={(event, date) => {
                 setShowDatePicker(false);
                 if (date) setForm({ ...form, expiryDate: date });

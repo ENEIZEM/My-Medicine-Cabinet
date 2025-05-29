@@ -12,6 +12,8 @@ export default {
   namePlaceholder: 'Ваше имя',
   actions: {
     save: 'Сохранить',
+    selectDate: 'Выбрать дату',
+    close: 'Закрыть',
     cancel: 'Отмена',
     delete: 'Удалить',
     confirm: 'Подтвердить',
