@@ -89,6 +89,10 @@ export default {
     ymd: 'YYYY.MM.DD',
     mdy: 'MM.DD.YYYY',
     ydm: 'YYYY.DD.MM',
-}
-
+}, 
+ expiry: {
+    dueIn: '{days} days left',
+    dueToday: 'Due today',
+    expired: 'Expired {days} days ago',
+  },
 };

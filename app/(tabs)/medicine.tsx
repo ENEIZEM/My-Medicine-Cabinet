@@ -75,6 +75,18 @@ export default function MedicineScreen() {
     item.name.toLowerCase().includes(searchText.toLowerCase())
   );
 
+const getDaysLeftText = (isoDate: string): string => {
+  const today = new Date();
+  const expiry = new Date(isoDate);
+  const diffTime = expiry.getTime() - today.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays > 0) return t.expiry.dueIn.replace('{days}', String(diffDays));
+  if (diffDays === 0) return t.expiry.dueToday;
+  return t.expiry.expired.replace('{days}', String(Math.abs(diffDays)));
+};
+
+
   return (
     <View
       style={[
@@ -203,9 +215,9 @@ export default function MedicineScreen() {
                         {item.quantity}{' '}
                         {t.medicine.units[item.form as keyof typeof t.medicine.units] ?? item.form}
                       </Text>
-                      <Text style={{ color: colors.onSurface, fontSize: 16 }}>
-                        {formatDate(item.expiryDate, dateOrder, dateSeparator)}
-                      </Text>
+                        <Text style={{ color: colors.onSurface, fontSize: 16 }}>
+                          {formatDate(item.expiryDate, dateOrder, dateSeparator)}
+                        </Text>
                     </View>
                     <View style={{ flexShrink: 0, flexDirection: 'row' }}>
                       <IconButton
