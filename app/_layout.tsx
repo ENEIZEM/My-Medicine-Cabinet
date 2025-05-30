@@ -7,8 +7,7 @@ import { SettingsProvider, useSettings } from '@/contexts/SettingsContext';
 import { useEffect } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { GestureHandlerRootView } from 'react-native-gesture-handler'; // ⬅️ обязательно
-import { View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 function AppWrapper({ children }: { children: React.ReactNode }) {
   const { resolvedTheme } = useSettings();
