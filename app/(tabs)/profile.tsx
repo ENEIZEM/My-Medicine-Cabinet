@@ -1,149 +1,123 @@
-import { View, TouchableOpacity, ScrollView } from 'react-native';
-import { Text, TextInput, useTheme, Divider } from 'react-native-paper';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { useSettings } from '@/contexts/SettingsContext';
-import { useState } from 'react';
-import { commonStyles } from '@/constants/styles';
+import React, { useState } from 'react';
+import { View, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { Text, TextInput, useTheme } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { DateOrder, DateSeparator } from '@/contexts/SettingsContext';
-import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import { useFocusEffect } from '@react-navigation/native';
-import React from 'react';
+
+import { useLanguage } from '@/contexts/LanguageContext';
+import { DateOrder, DateSeparator, useSettings } from '@/contexts/SettingsContext';
+import { commonStyles } from '@/constants/styles';
+import { BlurView } from 'expo-blur';
 
 export default function ProfileScreen() {
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
   const { t, language, setLanguage } = useLanguage();
   const {
-    userName,
-    setUserName,
-    is12HourFormat,
-    toggleTimeFormat,
-    themeMode,
-    setThemeMode,
-    dateOrder,
-    setDateOrder,
-    dateSeparator,
-    setDateSeparator,
+    userName, setUserName,
+    is12HourFormat, toggleTimeFormat,
+    themeMode, setThemeMode,
+    dateOrder, setDateOrder,
+    dateSeparator, setDateSeparator,
+    resolvedTheme,
   } = useSettings();
 
   const [name, setName] = useState(userName);
-  const insets = useSafeAreaInsets();
-  const [visible, setVisible] = useState(false);
 
-  useFocusEffect(
-    React.useCallback(() => {
-      setVisible(false);
-      const timeout = setTimeout(() => setVisible(true), 10);
-      return () => {
-        clearTimeout(timeout);
-        setVisible(false);
-      };
-    }, [])
-  );
+  const handleSaveName = () => setUserName(name);
 
-  const handleSaveName = () => {
-    setUserName(name);
-  };
+  const cycleTheme = () =>
+    setThemeMode(themeMode === 'system' ? 'light' : themeMode === 'light' ? 'dark' : 'system');
+
+  const getThemeLabel = () =>
+    themeMode === 'light' ? t.themes.light :
+    themeMode === 'dark' ? t.themes.dark : t.themes.system;
 
   const toggleLang = () => {
     setLanguage(language === 'ru' ? 'en' : 'ru');
-  };
-
-  const cycleTheme = () => {
-    const nextMode =
-      themeMode === 'system' ? 'light' : themeMode === 'light' ? 'dark' : 'system';
-    setThemeMode(nextMode);
-  };
-
-  const getThemeLabel = () => {
-    switch (themeMode) {
-      case 'light':
-        return t.themes.light;
-      case 'dark':
-        return t.themes.dark;
-      default:
-        return t.themes.system;
-    }
   };
 
   return (
     <View
       style={[
         {
-          backgroundColor: colors.background,
-          paddingTop: insets.top,
+          backgroundColor: resolvedTheme === 'dark' ? '#000' : colors.background,
+          paddingTop: 0,
           paddingBottom: insets.bottom,
         },
         commonStyles.container,
       ]}
     >
-      {visible && (
-        <Animated.View 
-          entering={FadeIn.duration(200)} 
-          exiting={FadeOut.duration(100)}
-          style={{ flex: 1 }}
+      {/* Поле имени */}
+      <BlurView
+        intensity={50}
+        tint={resolvedTheme === 'dark' ? 'dark' : 'light'}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 68 + insets.top,
+          justifyContent: 'center',
+          paddingHorizontal: 16,
+          zIndex: 10,
+        }}
+      >
+        <View style={{
+          ...StyleSheet.absoluteFillObject,
+          backgroundColor: resolvedTheme === 'dark' ? 'rgba(80, 75, 105, 0.15)' : 'rgba(180, 175, 195, 0.15)',
+        }} />
+        <View
+          style={{
+            backgroundColor: resolvedTheme === 'dark' ? 'rgba(240, 227, 253, 0.15)' : 'rgba(95, 48, 128, 0.15)',
+            borderRadius: 8,
+            height: 44,
+            top: insets.top/2,
+            justifyContent: 'center',
+          }}
         >
-          {/* Поле ввода имени */}
-         <View
+          <TextInput
+            value={name}
+            onChangeText={setName}
+            placeholder={t.namePlaceholder}
+            mode="flat"
+            underlineColor="transparent"
+            activeUnderlineColor="transparent"
+            onBlur={handleSaveName}
+            onSubmitEditing={handleSaveName}
             style={{
-              height: 68,
-              borderBottomWidth: 1,
-              borderBottomColor: colors.outline,
-              justifyContent: 'center',
-              paddingHorizontal: 16,
-              backgroundColor: colors.background,
-              marginHorizontal: -16,
-            }}
-          >
-          <View
-            style={{
-              backgroundColor: colors.surfaceVariant,
-              borderRadius: 24,
+              top: 0,
               height: 44,
-              justifyContent: 'center',
+              fontSize: 18,
+              textAlign: 'center',
+              backgroundColor: 'transparent',
             }}
-          >
-            <TextInput
-              value={name}
-              onChangeText={setName}
-              placeholder={t.namePlaceholder}
-              mode="flat"
-              underlineColor="transparent"
-              activeUnderlineColor="transparent"
-              style={{
-                height: 44,
-                fontSize: 16,
-                paddingVertical: 0,
-                textAlign: 'center',
-                backgroundColor: 'transparent',
-              }}
-              onBlur={handleSaveName}
-              onSubmitEditing={handleSaveName}
-            />
-            <TextInput.Icon
-              icon="account"
-              style={{
-                position: 'absolute',
-                left: 12,
-              }}
-            />
-          </View>
-          </View>
+          />
+          <TextInput.Icon icon="account" size={26} style={{ position: 'absolute', left: 12 }} />
+        </View>
+      </BlurView>
 
           {/* ScrollView для настроек */}
           <ScrollView
             contentContainerStyle={{
               paddingBottom: 72,
+              paddingTop: 80 + insets.top
             }}
             showsVerticalScrollIndicator={false}
           >
             {/* Язык */}
             <View style={[
               commonStyles.row, 
-              { 
+              {
+                borderBottomWidth: 0,
+                marginBottom: 10,
                 padding: 16,
                 backgroundColor: colors.surface,
-                borderRadius: 12,
+                borderRadius: 8,
+                elevation: 2, // Android
+                shadowColor: '#000', // iOS
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.1,
+                shadowRadius: 4,
               }
             ]}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -159,10 +133,10 @@ export default function ProfileScreen() {
               <TouchableOpacity 
                 onPress={toggleLang}
                 style={{
-                  backgroundColor: colors.surfaceVariant,
-                  borderRadius: 16,
+                  backgroundColor: resolvedTheme === 'dark' ? 'rgb(54, 51, 59)' : 'rgb(237, 225, 245)',
+                  borderRadius: 8,
                   paddingHorizontal: 12,
-                  paddingVertical: 6,
+                  paddingVertical: 10,
                 }}
               >
                 <Text style={{ 
@@ -178,10 +152,17 @@ export default function ProfileScreen() {
             {/* Формат времени */}
             <View style={[
               commonStyles.row, 
-              { 
+              {
+                borderBottomWidth: 0,
+                marginBottom: 10,
                 padding: 16,
                 backgroundColor: colors.surface,
-                borderRadius: 12,
+                borderRadius: 8,
+                elevation: 2, // Android
+                shadowColor: '#000', // iOS
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.1,
+                shadowRadius: 4,
               }
             ]}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -197,10 +178,10 @@ export default function ProfileScreen() {
               <TouchableOpacity 
                 onPress={toggleTimeFormat}
                 style={{
-                  backgroundColor: colors.surfaceVariant,
-                  borderRadius: 16,
+                  backgroundColor: resolvedTheme === 'dark' ? 'rgb(54, 51, 59)' : 'rgb(237, 225, 245)',
+                  borderRadius: 8,
                   paddingHorizontal: 12,
-                  paddingVertical: 6,
+                  paddingVertical: 10,
                 }}
               >
                 <Text style={{ 
@@ -216,10 +197,17 @@ export default function ProfileScreen() {
             {/* Тема */}
             <View style={[
               commonStyles.row, 
-              { 
+              {
+                borderBottomWidth: 0,
+                marginBottom: 10,
                 padding: 16,
                 backgroundColor: colors.surface,
-                borderRadius: 12,
+                borderRadius: 8,
+                elevation: 2, // Android
+                shadowColor: '#000', // iOS
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.1,
+                shadowRadius: 4,
               }
             ]}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -239,10 +227,10 @@ export default function ProfileScreen() {
               <TouchableOpacity 
                 onPress={cycleTheme}
                 style={{
-                  backgroundColor: colors.surfaceVariant,
-                  borderRadius: 16,
+                  backgroundColor: resolvedTheme === 'dark' ? 'rgb(54, 51, 59)' : 'rgb(237, 225, 245)',
+                  borderRadius: 8,
                   paddingHorizontal: 12,
-                  paddingVertical: 6,
+                  paddingVertical: 10,
                 }}
               >
                 <Text style={{ 
@@ -258,10 +246,17 @@ export default function ProfileScreen() {
             {/* Формат даты */}
             <View style={[
               commonStyles.row, 
-              { 
+              {
+                borderBottomWidth: 0,
+                marginBottom: 10,
                 padding: 16,
                 backgroundColor: colors.surface,
-                borderRadius: 12,
+                borderRadius: 8,
+                elevation: 2, // Android
+                shadowColor: '#000', // iOS
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.1,
+                shadowRadius: 4,
               }
             ]}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -281,10 +276,10 @@ export default function ProfileScreen() {
                   setDateOrder(next);
                 }}
                 style={{
-                  backgroundColor: colors.surfaceVariant,
-                  borderRadius: 16,
+                  backgroundColor: resolvedTheme === 'dark' ? 'rgb(54, 51, 59)' : 'rgb(237, 225, 245)',
+                  borderRadius: 8,
                   paddingHorizontal: 12,
-                  paddingVertical: 6,
+                  paddingVertical: 10,
                 }}
               >
                 <Text style={{ 
@@ -300,10 +295,17 @@ export default function ProfileScreen() {
             {/* Разделитель даты */}
             <View style={[
               commonStyles.row, 
-              { 
+              {
+                borderBottomWidth: 0,
+                marginBottom: 10,
                 padding: 16,
                 backgroundColor: colors.surface,
-                borderRadius: 12,
+                borderRadius: 8,
+                elevation: 2, // Android
+                shadowColor: '#000', // iOS
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.1,
+                shadowRadius: 4,
               }
             ]}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -323,10 +325,10 @@ export default function ProfileScreen() {
                   setDateSeparator(next);
                 }}
                 style={{
-                  backgroundColor: colors.surfaceVariant,
-                  borderRadius: 16,
+                  backgroundColor: resolvedTheme === 'dark' ? 'rgb(54, 51, 59)' : 'rgb(237, 225, 245)',
+                  borderRadius: 8,
                   paddingHorizontal: 12,
-                  paddingVertical: 6,
+                  paddingVertical: 10,
                 }}
               >
                 <Text style={{ 
@@ -343,8 +345,6 @@ export default function ProfileScreen() {
               </TouchableOpacity>
             </View>
           </ScrollView>
-        </Animated.View>
-      )}
     </View>
   );
 }

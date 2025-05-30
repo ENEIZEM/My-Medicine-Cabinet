@@ -1,17 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { View } from 'react-native';
-import { Platform, Modal } from 'react-native';
-import { Text, IconButton, useTheme, Portal, Dialog, Button } from 'react-native-paper';
+import { View, Platform, StyleSheet } from 'react-native';
+import { Text, Icon, useTheme, Button, TouchableRipple } from 'react-native-paper';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import Modal from 'react-native-modal';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useSettings } from '@/contexts/SettingsContext';
+import { BlurView } from 'expo-blur';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 
 export default function ScheduleHeader() {
   const { t, language } = useLanguage();
-  const { is12HourFormat, dateOrder, dateSeparator } = useSettings();
+  const { is12HourFormat, resolvedTheme } = useSettings();
   const theme = useTheme();
 
+  const insets = useSafeAreaInsets();
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [tempDate, setTempDate] = useState(new Date());
   const [showDialog, setShowDialog] = useState(false);
   const [currentTime, setCurrentTime] = useState('');
 
@@ -19,21 +24,10 @@ export default function ScheduleHeader() {
     const day = date.getDate();
     const year = date.getFullYear();
     const monthIndex = date.getMonth();
-
-    const months: Record<string, string[]> = {
-      ru: [
-        'января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
-        'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'
-      ],
-      en: [
-        'January', 'February', 'March', 'April', 'May', 'June',
-        'July', 'August', 'September', 'October', 'November', 'December'
-      ]
-    };
-
-    const monthWord = months[language][monthIndex];
-
-    return `${day} ${monthWord} ${year}`;
+    const months = language === 'ru'
+      ? ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря']
+      : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    return `${day} ${months[monthIndex]} ${year}`;
   };
 
   const getFormattedTime = (date: Date): string => {
@@ -55,107 +49,211 @@ export default function ScheduleHeader() {
     return () => clearInterval(interval);
   }, [is12HourFormat]);
 
-return (
-  <>
-    <View
-      style={{
-        height: 68,
-        borderBottomWidth: 1,
-        borderBottomColor: theme.colors.outline,
-        justifyContent: 'center',
-        paddingHorizontal: 16,
-        backgroundColor: theme.colors.background,
-        marginHorizontal: -16,
-      }}
-    >
+  return (
+    <>
+      {/* <View
+        style={{
+          height: 68,
+          borderBottomWidth: 0,
+          borderBottomColor: theme.colors.outline,
+          justifyContent: 'center',
+          paddingHorizontal: 16,
+          backgroundColor: theme.colors.background,
+          marginHorizontal: -16,
+        }}
+      >
+        <View
+          style={{
+            backgroundColor: theme.colors.surfaceVariant,
+            height: 44,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingHorizontal: 16,
+            borderRadius: 8,
+          }}
+        >
+          { Время слева }
+          <Text style={{ fontSize: 18, fontWeight: 'bold', color: theme.colors.onSurface }}>
+            {currentTime}
+          </Text>
+
+          { Дата + иконка — одна кнопка с ripple }
+          <TouchableRipple
+            onPress={() => {
+              setTempDate(selectedDate);
+              setShowDialog(true);
+            }}
+            borderless
+            rippleColor={theme.colors.primary} // без + '33' — чтобы не ломало цвет
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              paddingLeft: 8,
+              paddingRight: 0, // убираем внутренний отступ
+              marginRight: -1, // выдвигаем иконку ближе к краю
+              borderRadius: 8,
+            }}
+          >
+            <>
+              <Text
+                style={{
+                  fontSize: 18,
+                  fontWeight: 'bold',
+                  color: theme.colors.onSurface,
+                  marginRight: 4,
+                }}
+              >
+                {getFormattedDate(selectedDate)}
+              </Text>
+              <Icon source="calendar" size={26} color={theme.colors.onSurface} />
+            </>
+          </TouchableRipple>
+        </View>
+      </View> */}
+
+      {/* Поле имени */}
+      <BlurView
+        intensity={50}
+        tint={resolvedTheme === 'dark' ? 'dark' : 'light'}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 68 + insets.top,
+          justifyContent: 'center',
+          paddingHorizontal: 16,
+          zIndex: 10,
+        }}
+      >
+      <View style={{
+        ...StyleSheet.absoluteFillObject,
+          backgroundColor: resolvedTheme === 'dark' ? 'rgba(80, 75, 105, 0.15)' : 'rgba(180, 175, 195, 0.15)',
+      }} />
       <View
         style={{
-          backgroundColor: theme.colors.surfaceVariant,
+          backgroundColor: resolvedTheme === 'dark' ? 'rgba(240, 227, 253, 0.15)' : 'rgba(95, 48, 128, 0.15)',
+          borderRadius: 8,
           height: 44,
+          top: insets.top/2,
+          justifyContent: 'space-between',
           flexDirection: 'row',
           alignItems: 'center',
-          justifyContent: 'space-between',
           paddingHorizontal: 16,
-          borderRadius: 8,
         }}
       >
-        {/* Время слева */}
-        <Text style={{ fontSize: 18, fontWeight: 'bold', color: theme.colors.onSurface }}>
-          {currentTime}
-        </Text>
-
-        {/* Дата + иконка — теперь вся зона кликабельна */}
-        <View
-          style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
-          onTouchEnd={() => setShowDialog(true)} // 👈 при нажатии на всю область
-        >
-          <Text style={{ fontSize: 18, fontWeight: 'bold', color: theme.colors.onSurface }}>
-            {getFormattedDate(selectedDate)}
-          </Text>
-          <IconButton
-            icon="calendar"
-            size={26}
-            onPress={() => setShowDialog(true)}
-            style={{ margin: 0 }}
-          />
-        </View>
-      </View>
-    </View>
-
-{Platform.OS === 'android' && showDialog && (
-  <DateTimePicker
-    value={selectedDate}
-    mode="date"
-    display="default"
-    onChange={(event, date) => {
-      setShowDialog(false);
-      if (date) setSelectedDate(date);
-    }}
-    locale={language === 'ru' ? 'ru-RU' : 'en-US'}
-  />
-)}
-
-{Platform.OS === 'ios' && (
-  <Modal visible={showDialog} transparent animationType="fade">
-    <View
-      style={{
-        flex: 1,
-        justifyContent: 'flex-end',
-        backgroundColor: 'rgba(0,0,0,0.4)',
-      }}
-    >
-      <View
-        style={{
-          backgroundColor: theme.colors.surface,
-          paddingVertical: 16,
-          paddingHorizontal: 24,
-          borderTopLeftRadius: 16,
-          borderTopRightRadius: 16,
-          alignItems: 'center', // центрируем всё внутри
-        }}
-      >
-        <View style={{ width: '100%', alignItems: 'center' }}>
-          <DateTimePicker
-            value={selectedDate}
-            mode="date"
-            display="spinner"
-            onChange={(event, date) => {
-              if (event.type === 'set' && date) {
-                setSelectedDate(date);
-              }
+      { /*Время слева*/ }
+      <Text style={{ fontSize: 18, color: theme.colors.onSurface, }}>
+        {currentTime}
+      </Text>
+          { /*Дата + иконка — одна кнопка с ripple*/ }
+          <TouchableRipple
+            onPress={() => {
+              setTempDate(selectedDate);
+              setShowDialog(true);
             }}
-            locale={language === 'ru' ? 'ru-RU' : 'en-US'}
-            style={{ width: 320 }} // фиксированная ширина = центрирование
-          />
+            borderless
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              paddingLeft: 8,
+              paddingRight: 0, // убираем внутренний отступ
+              marginRight: -1, // выдвигаем иконку ближе к краю
+              borderRadius: 8,
+            }}
+          >
+            <>
+              <Text
+                style={{
+                  fontSize: 18,
+                  color: theme.colors.onSurface,
+                  marginRight: 4,
+                }}
+              >
+                {getFormattedDate(selectedDate)}
+              </Text>
+              <Icon source="calendar" size={26} color={theme.colors.onSurface} />
+            </>
+          </TouchableRipple>
         </View>
+      </BlurView>
 
-        <Button onPress={() => setShowDialog(false)}>
-          <Text style={{ fontSize: 16 }}>{t.actions.close}</Text>
-        </Button>
-      </View>
-    </View>
-  </Modal>
-)}
-  </>
-);
+      {/* iOS модалка */}
+      {Platform.OS === 'ios' && (
+        <Modal
+          isVisible={showDialog}
+          animationIn="slideInUp"
+          animationOut="slideOutDown"
+          backdropTransitionOutTiming={0}
+          onBackdropPress={() => setShowDialog(false)}
+          onBackButtonPress={() => setShowDialog(false)}
+          useNativeDriver
+          style={{ justifyContent: 'flex-end', margin: 0 }}
+        >
+          <View
+            style={{
+              backgroundColor: theme.colors.surface,
+              paddingVertical: 16,
+              paddingHorizontal: 24,
+              borderTopLeftRadius: 16,
+              borderTopRightRadius: 16,
+              alignItems: 'center',
+            }}
+          >
+            <View style={{ width: '100%', alignItems: 'center' }}>
+              <DateTimePicker
+                value={tempDate}
+                mode="date"
+                display="spinner"
+                onChange={(event, date) => {
+                  if (event.type === 'set' && date) setTempDate(date);
+                }}
+                locale={language === 'ru' ? 'ru-RU' : 'en-US'}
+                themeVariant={resolvedTheme === 'dark' ? 'dark' : 'light'}
+                textColor={theme.colors.onBackground}
+                style={{ width: 320 }}
+              />
+            </View>
+
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 16, width: '100%' }}>
+              <Button
+                mode="outlined"
+                onPress={() => setShowDialog(false)}
+                style={{ flex: 1, marginRight: 8 }}
+                labelStyle={{ fontSize: 16 }}
+              >
+                {t.actions.cancel}
+              </Button>
+              <Button
+                mode="contained"
+                onPress={() => {
+                  setSelectedDate(tempDate);
+                  setShowDialog(false);
+                }}
+                style={{ flex: 1, marginLeft: 8 }}
+                labelStyle={{ fontSize: 16 }}
+              >
+                {t.actions.select}
+              </Button>
+            </View>
+          </View>
+        </Modal>
+      )}
+
+      {/* Android DatePicker */}
+      {Platform.OS === 'android' && showDialog && (
+        <DateTimePicker
+          value={selectedDate}
+          mode="date"
+          display="default"
+          onChange={(event, date) => {
+            setShowDialog(false);
+            if (date) setSelectedDate(date);
+          }}
+          locale={language === 'ru' ? 'ru-RU' : 'en-US'}
+        />
+      )}
+    </>
+  );
 }

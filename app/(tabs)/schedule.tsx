@@ -1,54 +1,30 @@
-import { View, Text } from 'react-native';
+import { View } from 'react-native';
 import ScheduleHeader from '@/components/ui/ScheduleHeader';
 import { useTheme } from 'react-native-paper';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { commonStyles } from '@/constants/styles';
-import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import { useFocusEffect } from '@react-navigation/native';
-import React, { useState } from 'react';
+import { useSettings } from '@/contexts/SettingsContext';
+import React from 'react';
 
 export default function ScheduleScreen() {
+  const { resolvedTheme } = useSettings();
   const { colors } = useTheme();
   const { t } = useLanguage();
   const insets = useSafeAreaInsets();
-  const [visible, setVisible] = useState(false);
-
-  useFocusEffect(
-    React.useCallback(() => {
-      setVisible(false);               // сбросим
-      const timeout = setTimeout(() => {
-        setVisible(true);              // появление контента
-      }, 10);                          // задержка в 1 кадр
-
-      return () => {
-        clearTimeout(timeout);
-        setVisible(false);            // скрытие при уходе
-      };
-    }, [])
-  );
 
   return (
     <View
       style={[
         {
-          backgroundColor: colors.background,
-          paddingTop: insets.top ,
+          backgroundColor: resolvedTheme === 'dark' ? '#000' : colors.background,
+          paddingTop: 0,
           paddingBottom: insets.bottom,
         },
         commonStyles.container,
       ]}
     >
-    {visible && (
-      <Animated.View
-        entering={FadeIn.duration(200)}
-        exiting={FadeOut.duration(100)}
-        style={{ flex: 1 }}
-      >
-        <ScheduleHeader />
-        {/* Здесь позже может быть остальной контент расписания */}
-      </Animated.View>
-    )}
+      <ScheduleHeader />
     </View>
   );
 }
