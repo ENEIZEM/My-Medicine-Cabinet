@@ -10,6 +10,7 @@ import {
   Button,
   FAB,
   TextInput,
+  Icon,
 } from 'react-native-paper';
 import { useMedicine, Medicine } from '@/contexts/MedicineContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -162,7 +163,7 @@ export default function MedicineScreen() {
         <FlatList
           data={filteredMedicines}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={{ paddingTop: 60 + insets.top, paddingBottom: 140 }}
+          contentContainerStyle={{ paddingTop: 58 + insets.top, paddingBottom: 144 }}
           renderItem={({ item }) => {
             const expiryDate = new Date(item.expiryDate);
             const today = new Date();
@@ -201,7 +202,7 @@ export default function MedicineScreen() {
           }}
         />
       )}
-
+      
       {/* Кнопка добавления */}
       <FAB
         icon="plus"

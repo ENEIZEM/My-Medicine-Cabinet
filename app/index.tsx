@@ -1,3 +1,4 @@
+// app/index.tsx
 import { useEffect, useCallback } from 'react';
 import { useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';

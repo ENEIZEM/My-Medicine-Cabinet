@@ -1,57 +1,95 @@
-import React, { useState } from 'react';
-import { View, TouchableOpacity, useWindowDimensions, StyleSheet } from 'react-native';
-import { Text, Icon, useTheme } from 'react-native-paper';
+import React, { useState, useRef } from 'react';
+import {
+  View,
+  TouchableOpacity,
+  useWindowDimensions,
+  StyleSheet,
+} from 'react-native';
+import PagerView from 'react-native-pager-view';
+import { useTheme, Text, Icon } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { TabView } from 'react-native-tab-view';
+import { useSettings } from '@/contexts/SettingsContext';
+import { BlurView } from 'expo-blur';
 
 import ScheduleScreen from './schedule';
 import MedicineScreen from './medicine';
 import ProfileScreen from './profile';
-import { BlurView } from 'expo-blur';
 
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
 
 export default function TabsLayout() {
-  const { t } = useLanguage();
   const theme = useTheme();
+  const { t } = useLanguage();
   const insets = useSafeAreaInsets();
+  const { resolvedTheme } = useSettings();
   const layout = useWindowDimensions();
 
   const [index, setIndex] = useState(0);
+  const pagerRef = useRef<PagerView>(null);
+
+  const shakeX = useSharedValue(0);
+
+  const shakeStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: shakeX.value }],
+  }));
+
+  const triggerShake = () => {
+    shakeX.value = withSequence(
+      withTiming(-8, { duration: 50 }),
+      withTiming(8, { duration: 50 }),
+      withTiming(-5, { duration: 50 }),
+      withTiming(5, { duration: 50 }),
+      withTiming(0, { duration: 50 })
+    );
+  };
+
   const routes = [
     { key: 'schedule', title: t.scheduleTitle, icon: 'calendar' },
     { key: 'medicine', title: t.medicineTitle, icon: 'pill' },
     { key: 'profile', title: t.profileTitle, icon: 'account' },
   ];
 
-  const renderScene = ({ route }: { route: { key: string } }) => {
-    switch (route.key) {
-      case 'schedule':
-        return <ScheduleScreen />;
-      case 'medicine':
-        return <MedicineScreen />;
-      case 'profile':
-        return <ProfileScreen />;
-      default:
-        return null;
+  const handleTabPress = (newIndex: number) => {
+    if (newIndex === index) {
+      triggerShake(); // если нажали на уже активную вкладку
+      return;
     }
+    setIndex(newIndex);
+    pagerRef.current?.setPage(newIndex);
   };
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
-      <TabView
-        navigationState={{ index, routes }}
-        renderScene={renderScene}
-        onIndexChange={setIndex}
-        initialLayout={{ width: layout.width }}
-        swipeEnabled
-        renderTabBar={() => null}
-      />
+      {/* PagerView с эффектом shake при попытке перейти за границу */}
+      <Animated.View style={[{ flex: 1 }, shakeStyle]}>
+        <PagerView
+          ref={pagerRef}
+          style={{ flex: 1 }}
+          initialPage={0}
+          onPageSelected={(e) => setIndex(e.nativeEvent.position)}
+        >
+          <View key="schedule">
+            <ScheduleScreen />
+          </View>
+          <View key="medicine">
+            <MedicineScreen />
+          </View>
+          <View key="profile">
+            <ProfileScreen />
+          </View>
+        </PagerView>
+      </Animated.View>
 
-      {/* Кастомный таббар */}
+      {/* Размытие + полупрозрачная подложка + табы */}
       <BlurView
         intensity={50}
-        tint={theme.dark ? 'dark' : 'light'}
+        tint={resolvedTheme}
         style={{
           position: 'absolute',
           bottom: 0,
@@ -65,19 +103,19 @@ export default function TabsLayout() {
         <View
           style={{
             ...StyleSheet.absoluteFillObject,
-            backgroundColor: theme.dark
-              ? 'rgba(80, 75, 105, 0.15)'
-              : 'rgba(180, 175, 195, 0.15)',
+            backgroundColor:
+              resolvedTheme === 'dark'
+                ? 'rgba(80, 75, 105, 0.15)'
+                : 'rgba(180, 175, 195, 0.15)',
           }}
         />
-
         <View style={{ flexDirection: 'row', flex: 1 }}>
           {routes.map((route, i) => {
             const isFocused = index === i;
             return (
               <TouchableOpacity
                 key={route.key}
-                onPress={() => setIndex(i)}
+                onPress={() => handleTabPress(i)}
                 style={{
                   flex: 1,
                   alignItems: 'center',
@@ -88,13 +126,19 @@ export default function TabsLayout() {
                 <Icon
                   source={route.icon}
                   size={28}
-                  color={isFocused ? theme.colors.primary : theme.colors.onSurfaceVariant}
+                  color={
+                    isFocused
+                      ? theme.colors.primary
+                      : theme.colors.onSurfaceVariant
+                  }
                 />
                 <Text
                   style={{
                     fontSize: 16,
                     fontWeight: isFocused ? '700' : '500',
-                    color: isFocused ? theme.colors.primary : theme.colors.onSurfaceVariant,
+                    color: isFocused
+                      ? theme.colors.primary
+                      : theme.colors.onSurfaceVariant,
                   }}
                 >
                   {route.title}

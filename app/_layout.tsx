@@ -7,19 +7,19 @@ import { SettingsProvider, useSettings } from '@/contexts/SettingsContext';
 import { useEffect } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { View } from 'react-native';
 
 function AppWrapper({ children }: { children: React.ReactNode }) {
   const { resolvedTheme } = useSettings();
   const theme = resolvedTheme === 'dark' ? MD3DarkTheme : MD3LightTheme;
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <View style={{ flex: 1 }}>
       <PaperProvider theme={theme}>
         <StatusBar style={resolvedTheme === 'dark' ? 'light' : 'dark'} />
         {children}
       </PaperProvider>
-    </GestureHandlerRootView>
+    </View>
   );
 }
 

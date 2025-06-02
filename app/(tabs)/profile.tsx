@@ -100,7 +100,7 @@ export default function ProfileScreen() {
           <ScrollView
             contentContainerStyle={{
               paddingBottom: 72,
-              paddingTop: 80 + insets.top
+              paddingTop: 78 + insets.top
             }}
             showsVerticalScrollIndicator={false}
           >
