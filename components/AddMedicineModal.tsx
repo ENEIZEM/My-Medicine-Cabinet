@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import CustomDatePickerModal from '@/components/ui/CustomDatePickerModal';
 import {
   View,
   StyleSheet,
@@ -51,7 +52,7 @@ export default function AddMedicineModal({ visible, onDismiss, medicineToEdit }:
   const theme = useTheme();
 
   const isEditMode = !!medicineToEdit;
-
+  const [showPicker, setShowPicker] = useState(false);
   const [form, setForm] = useState({
     name: medicineToEdit?.name ?? '',
     quantity: medicineToEdit?.quantity ? String(medicineToEdit.quantity) : '',
@@ -64,7 +65,7 @@ export default function AddMedicineModal({ visible, onDismiss, medicineToEdit }:
   });
 
   const scrollRef = useRef<ScrollView>(null);
-
+  const [tempDate, setTempDate] = useState<Date>(form.expiryDate);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showFormSelector, setShowFormSelector] = useState(false);
   const [showDosageSelector, setShowDosageSelector] = useState(false);
@@ -256,29 +257,84 @@ export default function AddMedicineModal({ visible, onDismiss, medicineToEdit }:
           <Text style={styles.label}>{t.medicine.expiryDateLabel}</Text>
           <View style={styles.rowWrap}>
             <Text style={styles.labelInline}>{t.medicine.before}</Text>
-            <Button
+          <Button
             icon="calendar"
             mode="outlined"
-            onPress={() => setShowDatePicker(true)}
-            style={styles.dateButton}
-             >
+            onPress={() => {
+              setTempDate(form.expiryDate); // сохраняем текущую дату перед открытием
+              setShowPicker(true);
+            }}
+          >
             {formatDate(form.expiryDate, dateOrder, dateSeparator)}
           </Button>
-          </View>
-          {showDatePicker && Platform.OS !== 'web' && (
-            <DateTimePicker
-              value={form.expiryDate}
-              mode="date"
-              display="spinner"
-              minimumDate={new Date()}
-              themeVariant={resolvedTheme === 'dark' ? 'dark' : 'light'}
-              locale={language === 'ru' ? 'ru-RU' : 'en-US'}
-              onChange={(event, date) => {
-                setShowDatePicker(false);
-                if (date) setForm({ ...form, expiryDate: date });
-              }}
-            />
+
+          {/* iOS: Date picker in modal with buttons */}
+          {Platform.OS === 'ios' && showPicker && (
+            <Modal
+              isVisible={showPicker}
+              animationIn="slideInUp"
+              animationOut="slideOutDown"
+              backdropTransitionOutTiming={0}
+              onBackdropPress={() => setShowPicker(false)}
+              onBackButtonPress={() => setShowPicker(false)}
+              useNativeDriver
+              style={{ justifyContent: 'flex-end', margin: 0 }}
+            >
+              <View
+                style={{
+                  backgroundColor: theme.colors.surface,
+                  paddingVertical: 16,
+                  paddingHorizontal: 24,
+                  borderTopLeftRadius: 16,
+                  borderTopRightRadius: 16,
+                  alignItems: 'center',
+                }}
+              >
+                <DateTimePicker
+                  value={tempDate}
+                  mode="date"
+                  display="spinner"
+                  locale={language === 'ru' ? 'ru-RU' : 'en-US'}
+                  themeVariant={resolvedTheme === 'dark' ? 'dark' : 'light'}
+                  onChange={(event, date) => {
+                    if (date) setTempDate(date);
+                  }}
+                />
+
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginTop: 16,
+                    width: '100%',
+                  }}
+                >
+                  <Button
+                    mode="outlined"
+                    onPress={() => setShowPicker(false)}
+                    style={{ flex: 1, marginRight: 8 }}
+                    labelStyle={{ fontSize: 16 }}
+                  >
+                    {t.actions.cancel}
+                  </Button>
+                  <Button
+                    mode="contained"
+                    onPress={() => {
+                      setForm((prev) => ({ ...prev, expiryDate: tempDate }));
+                      setShowPicker(false);
+                    }}
+                    style={{ flex: 1, marginLeft: 8 }}
+                    labelStyle={{ fontSize: 16 }}
+                  >
+                    {t.actions.select}
+                  </Button>
+                </View>
+              </View>
+            </Modal>
           )}
+
+          </View>
+
 
           <Divider style={styles.divider} />
           <View style={styles.buttons}>

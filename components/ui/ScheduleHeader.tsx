@@ -6,6 +6,7 @@ import Modal from 'react-native-modal';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useSettings } from '@/contexts/SettingsContext';
 import { BlurView } from 'expo-blur';
+import CustomDatePickerModal from '@/components/ui/CustomDatePickerModal';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 
@@ -13,7 +14,7 @@ export default function ScheduleHeader() {
   const { t, language } = useLanguage();
   const { is12HourFormat, resolvedTheme } = useSettings();
   const theme = useTheme();
-
+  const [showCustomPicker, setShowCustomPicker] = useState(false);
   const insets = useSafeAreaInsets();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [tempDate, setTempDate] = useState(new Date());
@@ -51,67 +52,6 @@ export default function ScheduleHeader() {
 
   return (
     <>
-      {/* <View
-        style={{
-          height: 68,
-          borderBottomWidth: 0,
-          borderBottomColor: theme.colors.outline,
-          justifyContent: 'center',
-          paddingHorizontal: 16,
-          backgroundColor: theme.colors.background,
-          marginHorizontal: -16,
-        }}
-      >
-        <View
-          style={{
-            backgroundColor: theme.colors.surfaceVariant,
-            height: 44,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            paddingHorizontal: 16,
-            borderRadius: 8,
-          }}
-        >
-          { Время слева }
-          <Text style={{ fontSize: 18, fontWeight: 'bold', color: theme.colors.onSurface }}>
-            {currentTime}
-          </Text>
-
-          { Дата + иконка — одна кнопка с ripple }
-          <TouchableRipple
-            onPress={() => {
-              setTempDate(selectedDate);
-              setShowDialog(true);
-            }}
-            borderless
-            rippleColor={theme.colors.primary} // без + '33' — чтобы не ломало цвет
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              paddingLeft: 8,
-              paddingRight: 0, // убираем внутренний отступ
-              marginRight: -1, // выдвигаем иконку ближе к краю
-              borderRadius: 8,
-            }}
-          >
-            <>
-              <Text
-                style={{
-                  fontSize: 18,
-                  fontWeight: 'bold',
-                  color: theme.colors.onSurface,
-                  marginRight: 4,
-                }}
-              >
-                {getFormattedDate(selectedDate)}
-              </Text>
-              <Icon source="calendar" size={26} color={theme.colors.onSurface} />
-            </>
-          </TouchableRipple>
-        </View>
-      </View> */}
-
       {/* Поле имени */}
       <BlurView
         intensity={50}
@@ -150,8 +90,12 @@ export default function ScheduleHeader() {
           { /*Дата + иконка — одна кнопка с ripple*/ }
           <TouchableRipple
             onPress={() => {
-              setTempDate(selectedDate);
-              setShowDialog(true);
+              if (Platform.OS === 'android') {
+                setShowCustomPicker(true);
+              } else {
+                setTempDate(selectedDate);
+                setShowDialog(true); // это оставляем для iOS
+              }
             }}
             borderless
             style={{
@@ -241,19 +185,15 @@ export default function ScheduleHeader() {
         </Modal>
       )}
 
-      {/* Android DatePicker */}
-      {Platform.OS === 'android' && showDialog && (
-        <DateTimePicker
-          value={selectedDate}
-          mode="date"
-          display="default"
-          onChange={(event, date) => {
-            setShowDialog(false);
-            if (date) setSelectedDate(date);
+  <CustomDatePickerModal
+          visible={showCustomPicker}
+          initialDate={selectedDate}
+          onDismiss={() => setShowCustomPicker(false)}
+          onConfirm={(date) => {
+            setSelectedDate(date);
+            setShowCustomPicker(false);
           }}
-          locale={language === 'ru' ? 'ru-RU' : 'en-US'}
         />
-      )}
     </>
   );
 }

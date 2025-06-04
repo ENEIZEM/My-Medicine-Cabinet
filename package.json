@@ -19,6 +19,7 @@
     "@react-native-community/datetimepicker": "^8.3.0",
     "@react-native/metro-config": "^0.79.2",
     "@react-navigation/bottom-tabs": "^7.2.0",
+    "dayjs": "^1.11.13",
     "expo": "^53.0.9",
     "expo-blur": "~14.1.4",
     "expo-constants": "~17.1.6",
