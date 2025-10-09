@@ -116,7 +116,9 @@ The "Cancel" and "Save" buttons provide simple management and instant schedule s
 
 <p align="center">
   <img src="./images/ScheduleModal.jpg" width="30%" />
-</p>---
+</p>
+
+---
 
 # Profile Interface Brief Description
 
@@ -134,9 +136,11 @@ Key Advantages
 
 <p align="center">
   <img src="./images/Profile.jpg" width="30%" />
-</p>---
+</p>
 
-##Installation for Users
+---
+
+## Installation for Users
 [At the moment, the installation APK file for Android can be downloaded from the Releases page](https://github.com/ENEIZEM/My-Medicine-Cabinet/releases)
 s
 Links to Google Play / App Store will appear here in the future
