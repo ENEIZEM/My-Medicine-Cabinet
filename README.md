@@ -138,13 +138,163 @@ Key Advantages
 
 ##Installation for Users
 [At the moment, the installation APK file for Android can be downloaded from the Releases page](https://github.com/ENEIZEM/My-Medicine-Cabinet/releases)
+s
 Links to Google Play / App Store will appear here in the future
 
 
 ---
 
 # 👨‍💻 For Developers:
-Currently the application is available for testing via Expo Go.
+Node.js — LTS (install the latest LTS version)
+
+npm (comes with Node) or yarn (optional)
+
+JDK 17+ (required)
+
+Android Studio with Android SDK & Platform Tools installed (for Android builds/emulator)
+
+adb in PATH (Android SDK platform-tools)
+
+(Optional) macOS + Xcode + CocoaPods — if you plan to build the iOS native part
+
+Expo (will be used via npx expo)
+
+For now, the app is available for testing via Expo Go.
+
+### Running on Emulator / Physical Device
+1) Android Emulator (Android Studio)
+
+Open Android Studio → AVD Manager → create/start an emulator
+
+Make sure adb devices shows the emulator
+
+After npx expo prebuild, go to android/ and run:
+
+```
+# inside android directory
+./gradlew installDebug
+# or via Android Studio — Run → select device
+```
+
+### Physical Device
+
+Connect the device via USB/ADB and enable USB Debugging
+
+Run:
+```
+./gradlew installDebug
+```
+
+or use
+```
+npx expo run:android
+```
+
+(if configured)
+
+### Release Build (Android)
+
+Prepare a keystore (see "Signing" section)
+
+In the project root:
+
+```
+npx expo prebuild        # creates android/ if not existing
+cd android
+./gradlew clean
+./gradlew assembleRelease        # .apk in android/app/build/outputs/apk/release/
+# or
+./gradlew bundleRelease          # .aab for Google Play in android/app/build/outputs/bundle/release/
+```
+
+### Kotlin Native Module — What and Where to Modify
+
+Kotlin code is usually located in android/app/src/main/java/... or in android/<module>/src/...
+
+If you change the native module interface, don’t forget to:
+
+rebuild the native part (npx expo prebuild if needed, then ./gradlew assembleDebug)
+
+update TypeScript wrappers/types in src/ so JS/TS correctly calls native methods
+
+React Native Autolinking: modern native modules are linked automatically.
+For manual linking, modify MainApplication or relevant Gradle files.
+
+### Debugging and Logs
+JS Logs
+
+Use console.log() + Metro (opens when running npx expo start)
+
+You can also use React Native Debugger or Chrome DevTools
+
+Native Logs (Android)
+
+In a separate terminal:
+
+```
+adb logcat
+# or filter
+adb logcat | grep -E "ReactNative|MyMedicineCabinet|AndroidRuntime"
+```
+
+
+For deeper native debugging — set breakpoints in Android Studio and run from there.
+
+### Clearing Caches
+Metro:
+```
+npx expo start -c       # clear cache
+# or
+npx react-native start --reset-cache
+```
+
+Gradle:
+```
+cd android
+./gradlew clean
+```
+
+### Tests & Static Analysis
+
+TypeScript: tsc --noEmit for type checking
+
+Lint: ESLint + TypeScript rules (.eslintrc configuration)
+
+Unit tests: Jest (recommended) — jest + @testing-library/react-native
+
+E2E: Detox or Appium (if needed, more complex setup)
+
+### CI / CD — Basic Recommendation (GitHub Actions)
+
+Typical workflow steps:
+
+checkout
+
+setup-node + npm install (npm ci in CI)
+
+run npm run lint, npm run typecheck, npm test
+
+(optional) build Android debug version (./gradlew assembleDebug) for smoke testing
+
+(optional) publish AAB to Google Play via Fastlane / EAS
+
+If you want, I can generate an example workflow YAML for GitHub Actions.
+
+### Common Issues & Quick Fixes
+
+Issue: Expo Go does not detect the native module
+Cause: Expo Go does not support custom native modules → use prebuild / dev client / custom build
+
+"Could not find Java" / JDK errors
+Check JAVA_HOME, restart terminal / Android Studio
+
+Gradle build failed
+Run ./gradlew clean → check Kotlin/Gradle plugin version compatibility
+
+Metro cache issues
+npx expo start -c
+
+
 
 ## 🔧 Technologies
 
