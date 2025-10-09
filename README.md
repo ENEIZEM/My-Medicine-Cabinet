@@ -161,6 +161,8 @@ Expo (will be used via npx expo)
 
 For now, the app is available for testing via Expo Go.
 
+---
+
 ### Running on Emulator / Physical Device
 1) Android Emulator (Android Studio)
 
@@ -175,6 +177,9 @@ After npx expo prebuild, go to android/ and run:
 ./gradlew installDebug
 # or via Android Studio — Run → select device
 ```
+
+---
+
 
 ### Physical Device
 
@@ -192,6 +197,8 @@ npx expo run:android
 
 (if configured)
 
+---
+
 ### Release Build (Android)
 
 Prepare a keystore (see "Signing" section)
@@ -207,6 +214,9 @@ cd android
 ./gradlew bundleRelease          # .aab for Google Play in android/app/build/outputs/bundle/release/
 ```
 
+---
+
+
 ### Kotlin Native Module — What and Where to Modify
 
 Kotlin code is usually located in android/app/src/main/java/... or in android/<module>/src/...
@@ -219,6 +229,9 @@ update TypeScript wrappers/types in src/ so JS/TS correctly calls native methods
 
 React Native Autolinking: modern native modules are linked automatically.
 For manual linking, modify MainApplication or relevant Gradle files.
+
+---
+
 
 ### Debugging and Logs
 JS Logs
@@ -240,6 +253,8 @@ adb logcat | grep -E "ReactNative|MyMedicineCabinet|AndroidRuntime"
 
 For deeper native debugging — set breakpoints in Android Studio and run from there.
 
+---
+
 ### Clearing Caches
 Metro:
 ```
@@ -254,6 +269,9 @@ cd android
 ./gradlew clean
 ```
 
+---
+
+
 ### Tests & Static Analysis
 
 TypeScript: tsc --noEmit for type checking
@@ -263,6 +281,9 @@ Lint: ESLint + TypeScript rules (.eslintrc configuration)
 Unit tests: Jest (recommended) — jest + @testing-library/react-native
 
 E2E: Detox or Appium (if needed, more complex setup)
+
+---
+
 
 ### CI / CD — Basic Recommendation (GitHub Actions)
 
@@ -280,6 +301,8 @@ run npm run lint, npm run typecheck, npm test
 
 If you want, I can generate an example workflow YAML for GitHub Actions.
 
+---
+
 ### Common Issues & Quick Fixes
 
 Issue: Expo Go does not detect the native module
@@ -293,6 +316,8 @@ Run ./gradlew clean → check Kotlin/Gradle plugin version compatibility
 
 Metro cache issues
 npx expo start -c
+
+---
 
 
 
