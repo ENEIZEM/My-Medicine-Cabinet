@@ -39,7 +39,17 @@ yarn-error.*
 app-example
 
 # Android Keystore
-android/
+# Android build artifacts
+android/.gradle/
+android/.idea/
+android/local.properties
+android/app/build/
+android/build/
+android/gradle.properties
+
+# Android keys
+android/app/*.keystore
+android/app/*.jks
 
 # iOS
 ios/

@@ -1,12 +1,14 @@
-// contexts/SettingsContext.tsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useColorScheme } from 'react-native';
+import * as Localization from 'expo-localization';
+import { translations } from '@/constants/locales';
 
 export type ThemeMode = 'light' | 'dark' | 'system';
-
 export type DateOrder = 'dmy' | 'ymd' | 'mdy' | 'ydm';
 export type DateSeparator = '.' | '-' | ' ';
+export type HomeTab = 'schedule' | 'medicine';
+export type Language = keyof typeof translations;
 
 interface SettingsContextType {
   is12HourFormat: boolean;
@@ -15,23 +17,50 @@ interface SettingsContextType {
   setUserName: (name: string) => Promise<void>;
   themeMode: ThemeMode;
   setThemeMode: (mode: ThemeMode) => Promise<void>;
-  resolvedTheme: 'light' | 'dark'; // 👈 добавлено
-  
+  resolvedTheme: 'light' | 'dark';
   dateOrder: DateOrder;
   setDateOrder: (order: DateOrder) => Promise<void>;
   dateSeparator: DateSeparator;
   setDateSeparator: (sep: DateSeparator) => Promise<void>;
+  homeTab: HomeTab;
+  setHomeTab: (tab: HomeTab) => Promise<void>;
+  language: Language;
+  setLanguage: (lang: Language) => Promise<void>;
+  toggleLanguage: () => void;
+  t: typeof translations[Language];
+
+  // Добавлено: нижняя вставка (bottom inset) — в dp
+  bottomInset: number;
+  setBottomInset: (inset: number) => Promise<void>;
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
 
 const getSystemDateOrder = (): DateOrder => {
-  const format = new Intl.DateTimeFormat().format(new Date(2025, 0, 15)); // Jan 15, 2025
+  const format = new Intl.DateTimeFormat().format(new Date(2025, 0, 15));
+  // Подстроено под возможные форматы
   if (format.match(/^15[^\d]?0?1[^\d]?2025$/)) return 'dmy';
   if (format.match(/^2025[^\d]?0?1[^\d]?15$/)) return 'ymd';
   if (format.match(/^0?1[^\d]?15[^\d]?2025$/)) return 'mdy';
   if (format.match(/^2025[^\d]?15[^\d]?0?1$/)) return 'ydm';
   return 'dmy';
+};
+
+const getDeviceLanguage = (): Language => {
+  const sovietLanguages = [
+    'ru', 'uk', 'be', 'kk', 'ky', 'uz', 'tk', 'az', 'hy', 'ro',
+    'ab', 'os', 'tg', 'ka', 'lv', 'lt', 'et',
+  ];
+
+  const locales = Localization.getLocales();
+  if (Array.isArray(locales) && locales.length > 0) {
+    const langCode = locales[0].languageCode?.toLowerCase();
+    if (langCode && sovietLanguages.includes(langCode)) {
+      return 'ru';
+    }
+  }
+
+  return 'en';
 };
 
 export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -40,44 +69,79 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [themeMode, setThemeModeState] = useState<ThemeMode>('system');
   const [dateOrder, setDateOrderState] = useState<DateOrder>('dmy');
   const [dateSeparator, setDateSeparatorState] = useState<DateSeparator>('.');
+  const [homeTab, setHomeTabState] = useState<HomeTab>('medicine');
+  const [language, setLanguageState] = useState<Language>('en');
 
-  
+  // Добавлено: bottomInset — хранится в dp
+  const [bottomInset, setBottomInsetState] = useState<number>(0);
 
-  const systemScheme = useColorScheme(); // 👈 light / dark / null
+  const systemScheme = useColorScheme();
   const resolvedTheme: 'light' | 'dark' =
     themeMode === 'system' ? (systemScheme === 'dark' ? 'dark' : 'light') : themeMode;
 
   useEffect(() => {
     const loadSettings = async () => {
       try {
-        const [format, savedName, savedTheme] = await Promise.all([
+        const [
+          savedFormat,
+          savedName,
+          savedTheme,
+          storedOrder,
+          storedSep,
+          savedHomeTab,
+          savedLang,
+          storedBottomInset,
+        ] = await Promise.all([
           AsyncStorage.getItem('timeFormat'),
           AsyncStorage.getItem('userName'),
           AsyncStorage.getItem('themeMode'),
+          AsyncStorage.getItem('dateOrder'),
+          AsyncStorage.getItem('dateSeparator'),
+          AsyncStorage.getItem('homeTab'),
+          AsyncStorage.getItem('appLanguage'),
+          AsyncStorage.getItem('bottomInset'), // загружаем сохранённую bottomInset, если есть
         ]);
 
-        if (format === '12' || format === '24') {
-          setIs12HourFormat(format === '12');
+        if (savedFormat === '12' || savedFormat === '24') {
+          setIs12HourFormat(savedFormat === '12');
         } else {
-          // Установить формат по умолчанию в зависимости от системы
-          const locale = Intl.DateTimeFormat().resolvedOptions().locale;
-          const use24Hour = !locale.includes('en-US'); // примерная эвристика
-          setIs12HourFormat(!use24Hour ? false : true);
+          const calendars = Localization.getCalendars();
+          const system24Hour = calendars?.[0]?.uses24hourClock ?? true;
+          setIs12HourFormat(!system24Hour);
         }
 
         if (savedName) setUserNameState(savedName);
+
         if (savedTheme === 'light' || savedTheme === 'dark' || savedTheme === 'system') {
           setThemeModeState(savedTheme);
-        } else {
-          setThemeModeState('system'); // По умолчанию
         }
 
-        const storedOrder = await AsyncStorage.getItem('dateOrder');
-        const storedSep = await AsyncStorage.getItem('dateSeparator');
+        if (storedOrder === 'dmy' || storedOrder === 'ymd' || storedOrder === 'mdy' || storedOrder === 'ydm') {
+          setDateOrderState(storedOrder);
+        } else {
+          setDateOrderState(getSystemDateOrder());
+        }
 
-        setDateOrderState(storedOrder as DateOrder ?? getSystemDateOrder());
-        setDateSeparatorState((storedSep as DateSeparator) ?? '.');
-        
+        if (storedSep === '.' || storedSep === '-' || storedSep === ' ') {
+          setDateSeparatorState(storedSep);
+        }
+
+        if (savedHomeTab === 'schedule' || savedHomeTab === 'medicine') {
+          setHomeTabState(savedHomeTab);
+        }
+
+        if (savedLang && translations[savedLang as Language]) {
+          setLanguageState(savedLang as Language);
+        } else {
+          setLanguageState(getDeviceLanguage());
+        }
+
+        if (storedBottomInset) {
+          const parsed = parseFloat(storedBottomInset);
+          if (!Number.isNaN(parsed)) {
+            setBottomInsetState(parsed);
+          }
+        }
       } catch (error) {
         console.error('Failed to load settings:', error);
       }
@@ -87,12 +151,21 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, []);
 
   const setDateOrder = async (order: DateOrder) => {
-    setDateOrderState(order);
-    await AsyncStorage.setItem('dateOrder', order);
+    try {
+      await AsyncStorage.setItem('dateOrder', order);
+      setDateOrderState(order);
+    } catch (error) {
+      console.error('Failed to save date order:', error);
+    }
   };
+
   const setDateSeparator = async (sep: DateSeparator) => {
-    setDateSeparatorState(sep);
-    await AsyncStorage.setItem('dateSeparator', sep);
+    try {
+      await AsyncStorage.setItem('dateSeparator', sep);
+      setDateSeparatorState(sep);
+    } catch (error) {
+      console.error('Failed to save date separator:', error);
+    }
   };
 
   const toggleTimeFormat = async () => {
@@ -123,6 +196,38 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   };
 
+  const setHomeTab = async (tab: HomeTab) => {
+    try {
+      await AsyncStorage.setItem('homeTab', tab);
+      setHomeTabState(tab);
+    } catch (error) {
+      console.error('Failed to save home tab:', error);
+    }
+  };
+
+  const setLanguage = async (lang: Language) => {
+    try {
+      await AsyncStorage.setItem('appLanguage', lang);
+      setLanguageState(lang);
+    } catch (error) {
+      console.error('Error saving language:', error);
+    }
+  };
+
+  const toggleLanguage = () => {
+    const newLang: Language = language === 'en' ? 'ru' : 'en';
+    setLanguage(newLang);
+  };
+
+  // Добавлено: сеттер для bottomInset — сохраняет в AsyncStorage и обновляет state
+  const setBottomInset = async (inset: number) => {
+    try {
+      await AsyncStorage.setItem('bottomInset', String(inset));
+      setBottomInsetState(inset);
+    } catch (error) {
+      console.error('Failed to save bottom inset:', error);
+    }
+  };
 
   return (
     <SettingsContext.Provider
@@ -133,11 +238,19 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setUserName,
         themeMode,
         setThemeMode,
-        resolvedTheme, // 👈 обязательно добавлен
+        resolvedTheme,
         dateOrder,
         setDateOrder,
         dateSeparator,
-        setDateSeparator
+        setDateSeparator,
+        homeTab,
+        setHomeTab,
+        language,
+        setLanguage,
+        toggleLanguage,
+        t: translations[language],
+        bottomInset,
+        setBottomInset,
       }}
     >
       {children}

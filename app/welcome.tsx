@@ -1,29 +1,26 @@
+import React, { useEffect, useState } from 'react';
 import { View, Text } from 'react-native';
-import { Icon, useTheme } from 'react-native-paper';
 import { useSettings } from '@/contexts/SettingsContext';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { useEffect, useState } from 'react';
+import { useTheme } from 'react-native-paper';
 import Animated, {
   FadeIn,
   FadeOut,
-  runOnJS,
-  useAnimatedStyle,
   useSharedValue,
+  useAnimatedStyle,
   withTiming,
 } from 'react-native-reanimated';
+import { useRouter } from 'expo-router';
 import { commonStyles } from '@/constants/styles';
+import { IconHeart } from '@/constants/icons';
+import { scheduleOnRN } from 'react-native-worklets';
 
-type WelcomeScreenProps = {
-  onReady?: () => void;
-};
-
-export default function WelcomeScreen({ onReady }: WelcomeScreenProps) {
+export default function Welcome() {
+  const { userName, homeTab, is12HourFormat, t } = useSettings();
   const { colors } = useTheme();
-  const { userName, is12HourFormat } = useSettings();
-  const { t } = useLanguage();
+  const router = useRouter();
 
   const [greeting, setGreeting] = useState(t.greetings.default);
-  const isVisible = useSharedValue(1); // 1 — видимо, 0 — скрыто
+  const isVisible = useSharedValue(1);
 
   useEffect(() => {
     const hour = new Date().getHours();
@@ -41,14 +38,16 @@ export default function WelcomeScreen({ onReady }: WelcomeScreenProps) {
 
     const timer = setTimeout(() => {
       isVisible.value = withTiming(0, { duration: 400 }, (finished) => {
-        if (finished && onReady) {
-          runOnJS(onReady)();
+        if (finished) {
+          const target =
+            homeTab === 'medicine' ? '/(tabs)/medicine' : '/(tabs)/schedule';
+          scheduleOnRN(router.replace, target);
         }
       });
     }, 2000);
 
     return () => clearTimeout(timer);
-  }, [t, is12HourFormat]);
+  }, [t, is12HourFormat, userName]);
 
   const fadeStyle = useAnimatedStyle(() => ({
     opacity: isVisible.value,
@@ -56,29 +55,34 @@ export default function WelcomeScreen({ onReady }: WelcomeScreenProps) {
 
   return (
     <View style={[commonStyles.centered, { backgroundColor: colors.background }]}>
-      <Animated.View entering={FadeIn.duration(300)}>
+      {/* Иконка */}
+      <Animated.View entering={FadeIn.duration(300)} exiting={FadeOut.duration(300)}>
         <Animated.View style={fadeStyle}>
-          <Icon source="heart" size={80} color={colors.primary} />
+          <IconHeart width={80} height={80} fill={colors.primary} />
         </Animated.View>
       </Animated.View>
 
-      <Animated.View entering={FadeIn.delay(100).duration(300)}>
+      {/* Приветствие */}
+      <Animated.View
+        entering={FadeIn.delay(100).duration(300)}
+        exiting={FadeOut.delay(100).duration(300)}
+      >
         <Animated.View style={fadeStyle}>
-          <Text style={{ fontSize: 28, color: colors.onBackground}}>
-            {greeting}
+          <Text style={{ fontSize: 28, color: colors.onBackground }}>{greeting}</Text>
+        </Animated.View>
+      </Animated.View>
+
+      {/* Имя пользователя */}
+      <Animated.View
+        entering={FadeIn.delay(200).duration(300)}
+        exiting={FadeOut.delay(200).duration(300)}
+      >
+        <Animated.View style={fadeStyle}>
+          <Text style={{ fontSize: 32, fontWeight: 'bold', color: colors.primary }}>
+            {userName}
           </Text>
         </Animated.View>
       </Animated.View>
-
-      {!!userName && (
-        <Animated.View entering={FadeIn.delay(200).duration(300)}>
-          <Animated.View style={fadeStyle}>
-            <Text style={{ fontSize: 32, fontWeight: 'bold', color: colors.primary }}>
-              {userName}
-            </Text>
-          </Animated.View>
-        </Animated.View>
-      )}
     </View>
   );
 }

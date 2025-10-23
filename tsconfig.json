@@ -14,7 +14,8 @@
     "paths": {
       "@/*": [
         "./*"
-      ]
+      ],
+      "@/assets/icons/*": ["./assets/icons/*"]
     },
     "lib": [
       "esnext"
@@ -35,6 +36,8 @@
   "extends": "expo/tsconfig.base",
   "include": [
     "**/*.ts",
-    "**/*.tsx"
+    "**/*.tsx",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts"
   ]
 }

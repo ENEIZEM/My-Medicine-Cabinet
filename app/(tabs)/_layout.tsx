@@ -1,16 +1,14 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   TouchableOpacity,
-  useWindowDimensions,
-  StyleSheet,
+  Platform,
 } from 'react-native';
 import PagerView from 'react-native-pager-view';
-import { useTheme, Text, Icon } from 'react-native-paper';
+import { useTheme, Text } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useLanguage } from '@/contexts/LanguageContext';
 import { useSettings } from '@/contexts/SettingsContext';
-import { BlurView } from 'expo-blur';
+import NavigationBar from 'react-native-system-navigation-bar';
 
 import ScheduleScreen from './schedule';
 import MedicineScreen from './medicine';
@@ -23,14 +21,20 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import {
+  IconCalendarTab,
+  IconMedicineTab,
+  IconAccountTab,
+} from '@/constants/icons';
+
 export default function TabsLayout() {
   const theme = useTheme();
-  const { t } = useLanguage();
+  const { colors } = theme;
   const insets = useSafeAreaInsets();
-  const { resolvedTheme } = useSettings();
-  const layout = useWindowDimensions();
+  const { resolvedTheme, homeTab, t } = useSettings();
 
-  const [index, setIndex] = useState(0);
+  const initialIndex = homeTab === 'medicine' ? 1 : 0;
+  const [index, setIndex] = useState(initialIndex);
   const pagerRef = useRef<PagerView>(null);
 
   const shakeX = useSharedValue(0);
@@ -49,29 +53,51 @@ export default function TabsLayout() {
     );
   };
 
-  const routes = [
-    { key: 'schedule', title: t.scheduleTitle, icon: 'calendar' },
-    { key: 'medicine', title: t.medicineTitle, icon: 'pill' },
-    { key: 'profile', title: t.profileTitle, icon: 'account' },
-  ];
+  const routes = [{
+    key: 'schedule',
+    title: t.scheduleTitle,
+    icon: IconCalendarTab,
+  }, {
+    key: 'medicine',
+    title: t.medicineTitle,
+    icon: IconMedicineTab,
+  }, {
+    key: 'profile',
+    title: t.profileTitle,
+    icon: IconAccountTab,
+  }];
 
   const handleTabPress = (newIndex: number) => {
     if (newIndex === index) {
-      triggerShake(); // если нажали на уже активную вкладку
+      triggerShake();
       return;
     }
     setIndex(newIndex);
     pagerRef.current?.setPage(newIndex);
   };
 
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      // Небольшая задержка для полной инициализации
+      const timer = setTimeout(async () => {
+        try {
+          await NavigationBar.setNavigationColor(
+            colors.surfaceVariant, 
+            resolvedTheme === 'dark' ? 'light' : 'dark'
+          );
+        } catch (e) {}
+      });
+      return () => clearTimeout(timer);
+    }
+  }, [resolvedTheme, colors.surfaceVariant]);
+
   return (
-    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
-      {/* PagerView с эффектом shake при попытке перейти за границу */}
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
       <Animated.View style={[{ flex: 1 }, shakeStyle]}>
         <PagerView
           ref={pagerRef}
           style={{ flex: 1 }}
-          initialPage={0}
+          initialPage={initialIndex}
           onPageSelected={(e) => setIndex(e.nativeEvent.position)}
         >
           <View key="schedule">
@@ -86,10 +112,8 @@ export default function TabsLayout() {
         </PagerView>
       </Animated.View>
 
-      {/* Размытие + полупрозрачная подложка + табы */}
-      <BlurView
-        intensity={50}
-        tint={resolvedTheme}
+      {/* Таббар */}
+      <View
         style={{
           position: 'absolute',
           bottom: 0,
@@ -97,57 +121,51 @@ export default function TabsLayout() {
           right: 0,
           height: 68 + insets.bottom,
           paddingBottom: insets.bottom,
-          zIndex: 10,
+          zIndex: 11,
+          backgroundColor: colors.surfaceVariant,
+          flexDirection: 'row',
+          borderTopLeftRadius: 16,
+          borderTopRightRadius: 16,
+          shadowColor: "#000000",
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.15,
+          shadowRadius: 60,
+          elevation: 4,
         }}
       >
-        <View
-          style={{
-            ...StyleSheet.absoluteFillObject,
-            backgroundColor:
-              resolvedTheme === 'dark'
-                ? 'rgba(80, 75, 105, 0.15)'
-                : 'rgba(180, 175, 195, 0.15)',
-          }}
-        />
-        <View style={{ flexDirection: 'row', flex: 1 }}>
-          {routes.map((route, i) => {
-            const isFocused = index === i;
-            return (
-              <TouchableOpacity
-                key={route.key}
-                onPress={() => handleTabPress(i)}
+        {routes.map((route, i) => {
+          const isFocused = index === i;
+          const IconComponent = route.icon;
+
+          return (
+            <TouchableOpacity
+              key={route.key}
+              onPress={() => handleTabPress(i)}
+              style={{
+                flex: 1,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+              activeOpacity={0.8}
+            >
+              <IconComponent
+                width={isFocused ? 30 : 28}
+                height={isFocused ? 30 : 28}
+                fill={isFocused ? colors.primary : colors.onSurfaceVariant}
+              />
+              <Text
                 style={{
-                  flex: 1,
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  fontSize: 16,
+                  fontWeight: isFocused ? '700' : '500',
+                  color: isFocused ? colors.primary : colors.onSurfaceVariant,
                 }}
-                activeOpacity={0.8}
               >
-                <Icon
-                  source={route.icon}
-                  size={28}
-                  color={
-                    isFocused
-                      ? theme.colors.primary
-                      : theme.colors.onSurfaceVariant
-                  }
-                />
-                <Text
-                  style={{
-                    fontSize: 16,
-                    fontWeight: isFocused ? '700' : '500',
-                    color: isFocused
-                      ? theme.colors.primary
-                      : theme.colors.onSurfaceVariant,
-                  }}
-                >
-                  {route.title}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-      </BlurView>
+                {route.title}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
     </View>
   );
 }

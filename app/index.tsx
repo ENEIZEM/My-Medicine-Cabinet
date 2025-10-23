@@ -1,18 +1,13 @@
-// app/index.tsx
-import { useEffect, useCallback } from 'react';
-import { useRouter } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import WelcomeScreen from '@/app/welcome';
-
-SplashScreen.preventAutoHideAsync();
+import { useEffect } from 'react';
+import { router } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Index() {
-  const router = useRouter();
-
-  const handleReady = useCallback(async () => {
-    await SplashScreen.hideAsync();
-    router.replace('/(tabs)/schedule');
+  useEffect(() => {
+    router.replace('/welcome');
+    // AsyncStorage.clear().then(() => {
+    //   console.log('✅ AsyncStorage очищен');
+    // });
   }, []);
-
-  return <WelcomeScreen onReady={handleReady} />;
+  return null;
 }
